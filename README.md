@@ -1,42 +1,13 @@
-<!-- Improved compatibility of back to top link: See: https://github.com/othneildrew/Best-README-Template/pull/73 -->
 <a name="readme-top"></a>
-
-<!--
-*** Thanks for checking out the Best-README-Template. If you have a suggestion
-*** that would make this better, please fork the repo and create a pull request
-*** or simply open an issue with the tag "enhancement".
-*** Don't forget to give the project a star!
-*** Thanks again! Now go create something AMAZING! :D
--->
-<!-- PROJECT SHIELDS -->
-<!--
-*** I'm using markdown "reference style" links for readability.
-*** Reference links are enclosed in brackets [ ] instead of parentheses ( ).
-*** See the bottom of this document for the declaration of the reference variables
-*** for contributors-url, forks-url, etc. This is an optional, concise syntax you may use.
-*** https://www.markdownguide.org/basic-syntax/#reference-style-links
--->
-
-
-
-
-
-
 
 <!-- PROJECT LOGO -->
 <br />
 <div align="center">
-  <img src="https://raw.githubusercontent.com/Sibire/Bottlr/master/app/src/main/res/mipmap-xxxhdpi/ic_launcher.webp">
+  <img src="https://raw.githubusercontent.com/Diagoras/Bottlr/master/app/src/main/res/mipmap-xxxhdpi/ic_launcher.webp">
 <h1 align="center">Bottlr</h1>
   <p align="center">
     A simple, lightweight tool for managing your liquor inventory.
     <br />
-    <!-- TODO: ADD A DEMO VERSION -->
-    <a href="https://github.com/Sibire/Bottlr"><strong>Explore the docs »</strong></a>
-    <br />
-    <br />
-    <a href="https://github.com/Sibire/Bottlr/blob/master/app/debug/Bottlr-Refactor-Build1.apk">View Demo</a>
-    ·
     <a href="mailto:bottlrdev@gmail.com" target="Bottlr Bug Report">Report Bug</a>
     ·
     <a href="mailto:bottlrdev@gmail.com" target="Bottlr Feature Request">Request Feature</a>
@@ -49,200 +20,202 @@
 <details>
   <summary>Table of Contents</summary>
   <ol>
-    <li>
-      <a href="#about-the-project">About The Project</a>
-      <ul>
-        <li><a href="#built-with">Built With</a></li>
-      </ul>
-    </li>
-    <li>
-      <a href="#getting-started">Getting Started</a>
-      <ul>
-        <li><a href="#prerequisites">Prerequisites</a></li>
-        <li><a href="#installation">Installation</a></li>
-      </ul>
-    </li>
+    <li><a href="#about-the-project">About The Project</a></li>
+    <li><a href="#built-with">Built With</a></li>
+    <li><a href="#architecture">Architecture</a></li>
+    <li><a href="#getting-started">Getting Started</a></li>
+    <li><a href="#testing">Testing</a></li>
     <li><a href="#usage">Usage</a></li>
     <li><a href="#roadmap">Roadmap</a></li>
-    <li><a href="#contributing">Contributing</a></li>
     <li><a href="#license">License</a></li>
     <li><a href="#contact">Contact</a></li>
-    <li><a href="#acknowledgments">Acknowledgments</a></li>
   </ol>
 </details>
 
 ---
 
 <!-- ABOUT THE PROJECT -->
-<h3 align="center">About Bottlr</h3>
-
+## About The Project
 
 Bottlr is a simple, lightweight tool for managing your liquor inventory. Whether you're a personal collector, a bartender, or a manager, Bottlr has the cataloguing and inventory tools you'll need to manage your collection, regardless of size.
 
-Features
-Bottle Cataloguing: Easily add, edit, and manage your liquor bottles, with images and detailed information.
-Social Media Sharing: Share your favorite bottles on social media platforms.
-Cloud Storage: Remotely store your inventory data in the cloud with Firebase and Google SSO. No new registration required!
-Google Shopping Integration: One-Click search functionality makes finding a listing for your favorite bottles a breeze.
-Inventory Searching: Quickly find specific bottles or categories within your inventory.
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+### Features
 
----
-
-<h3 align="center">Built With</h3>
-
-- Java
-
-- Android
-
-- Firebase
+- **Bottle Cataloguing**: Easily add, edit, and manage your liquor bottles with images and detailed information
+- **Cocktail Recipes**: Create and manage your cocktail recipes
+- **Cloud Storage**: Remotely store your inventory data with Firebase and Google SSO
+- **Social Media Sharing**: Share your favorite bottles on social media platforms
+- **Google Shopping Integration**: One-click search to find listings for your bottles
+- **Inventory Search**: Quickly find specific bottles or categories within your inventory
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ---
 
-<!-- GETTING STARTED -->
-<h3 align="center">Getting Started</h3>
+## Built With
 
-Prerequisites:
-
-- Android 11.0 or Newer
-
----
-
-<h3 align="center">Installation</h3>
-
-Developers:
-
-- Clone the repo https://github.com/Sibire/Bottlr.git
-
-- Replace the googleservices.json file with your appropriate Firebase file.
-
-Users:
-
-- Download the app from https://github.com/Sibire/Bottlr/blob/master/app/release/Bottlr_0.18.apk
-
-- Install it from your downloads folder.
+- **Kotlin** - Primary language
+- **Android SDK 35** - Target API level
+- **Jetpack Components**:
+  - Room - Local database
+  - Navigation Component - Fragment navigation
+  - ViewModel & LiveData - UI state management
+  - Hilt - Dependency injection
+- **Firebase** - Authentication, Firestore, Cloud Storage
+- **Glide** - Image loading
+- **Espresso** - UI testing
+- **MockK** - Unit testing
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ---
 
-<!-- USAGE EXAMPLES -->
-<h3 align="center">Usage</h3>
+## Architecture
 
-Once installed, you can start using Bottlr to manage your liquor inventory.
+Bottlr uses **MVVM (Model-View-ViewModel)** architecture with the following structure:
 
- Basic Functionalities:
-
-  Add a Bottle: Press the "+" button from the home screen, and fill in relevant information.
-
-  Edit a Bottle: Click the edit button from a bottle's detail view to edit its information.
-
-  Search Inventory: Use the search bar to find specific bottles or filter by data field.
-
-  Share on Social Media: Press the share icon to quickly export an editable share blurb to the platform of your choice.
-
-  Shopping: Press the shopping icon to open a Google Shopping query for your selected bottle.
-
-  Save Image: Press to download the selected bottle's image to your phone's gallery.
-
-  Firebase Login: Navigate to Settings and log in using your existing Google account.
-
-  Upload to Cloud: Adds any new bottles to your Firebase Cloud.
-
-  Sync From Cloud: Downloads any new bottles from your firebase Cloud.
-
-  Erase Cloud Storage: Erases all remote storage, does not affect local storage.
-
-  ---
-
-  A note on adding bottles:
-
-  "Name" Is a required field, and will refer to the specific name of your bottle. This may also include the distillery, but usually excludes it.
-
-  "Distillery" Refers to the specific manufacturer of the bottle.
-
-  "Region" Specifies from where, this is usually found somewhere on the label.
-
-  "Type" Is the type of spirit. Also usually found on the label, something such as Tequila, Scotch, Vodka, and so on.
-
-  "Age" Refers to how long a spirit was aged, if any. Different spirits have different minimums, and some are not aged at all. Feel free to leave this empty if your spirit is not aged, or if it has no age statement.
-
-  "ABV" Is short for Alcohol By Volume, and is listed as a percentage on the bottle. May also be shown as "Proof", where 1 proof = 0.5%
-
-  "Rating" Is your subjective rating of the bottle, from 1-10.
-
-  "Notes" Is for any notes you wish to add.
-
-  "Keywords" Are to be separated by a comma, and are used for search optimization.
+```
+app/src/main/kotlin/com/bottlr/app/
+├── data/
+│   ├── local/
+│   │   ├── dao/          # Room DAOs
+│   │   └── entities/     # Room entities
+│   └── repository/       # Data repositories
+├── di/                   # Hilt dependency injection modules
+└── ui/
+    ├── details/          # Bottle details screen
+    ├── editor/           # Add/edit bottle screen
+    ├── gallery/          # Bottle gallery screen
+    ├── home/             # Home screen
+    ├── search/           # Search functionality
+    └── settings/         # Settings & Firebase sync
+```
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ---
 
-<!-- ROADMAP -->
-<h3 align="center">Roadmap</h3>
+## Getting Started
 
- NFC TAGGING: Quickly scan, edit, and save bottle data to commercially available NFC tags to simplify inventory management.
- 
- LOCATION TRACKING: Find a bottle you like? Whether it's on a store shelf or a bar cabinet, save your destination for future visits.
+### Prerequisites
 
- COCKTAIL BOOK: Add your own recipes, and keep track of what you can make with your current inventory.
- 
- PERSONALIZED SUGGESIONS: Find new cocktails and spirits based on your existing likes and inventory.
+- Android Studio Hedgehog or newer
+- Android SDK 35
+- JDK 17
+- Android device or emulator running Android 10.0+ (API 29+)
 
- DATABASE LOOKUP: Tired of adding data manually? Quickly search for and add a bottle from an array of pre-populated selections.
+### Installation
 
- COST-PER-POUR CALCULATION: Quickly and eaisly determine ideal prices for your cocktails and pours, based on volume and material cost.
+1. Clone the repo
+   ```sh
+   git clone https://github.com/Diagoras/Bottlr.git
+   ```
 
- CONSUMPTION TRACKER: Keep tabs on your and your patrons' service, and avoid any unpleasant hangovers from overservice.
- 
-See the open issues for a full list of proposed features (and known issues).
+2. Open in Android Studio
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-<!-- CONTRIBUTING -->
+3. Replace `app/google-services.json` with your Firebase configuration file
 
----
+4. Build and run
+   ```sh
+   ./gradlew assembleDebug
+   ```
 
-<h3 align="center">Contributing</h3>
+### Building a Release
 
-This is a closed team not accepting any external contributions.
+```sh
+# Create signing.properties with your keystore details
+# Then build the release AAB for Play Store:
+./gradlew bundleRelease
+```
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
----
-
-<!-- LICENSE -->
-<h3 align="center">License</h3>
-
-Distributed under the MIT License. See LICENSE.txt for more information.
+The signed AAB will be at `app/build/outputs/bundle/release/app-release.aab`
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ---
 
-<!-- CONTACT -->
-<h3 align="center">Contact</h3>
+## Testing
 
-Aoife Komperda (Sibire) & Michael George (Mike-Legend)
+Bottlr has comprehensive test coverage:
+
+### Unit Tests (51 tests)
+```sh
+./gradlew test
+```
+
+Tests for ViewModels, Repositories, and business logic.
+
+### Instrumented Tests (29 tests)
+```sh
+./gradlew connectedDebugAndroidTest
+```
+
+Includes:
+- **DAO Tests**: Room database operations
+- **UI Flow Tests**: Add, view, edit bottle workflows
+- **Navigation Tests**: Screen navigation
+- **Smoke Tests**: App startup verification
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+---
+
+## Usage
+
+### Basic Functionality
+
+| Action | How To |
+|--------|--------|
+| Add a Bottle | Tap the "+" FAB from the gallery |
+| Edit a Bottle | Open bottle details, tap the edit button |
+| Search | Tap the search icon in the gallery |
+| Share | Tap share icon from bottle details |
+| Buy | Tap shopping icon to search Google |
+| Cloud Sync | Go to Settings, sign in with Google |
+
+### Bottle Fields
+
+| Field | Description |
+|-------|-------------|
+| Name | Specific name of your bottle (required) |
+| Distillery | Manufacturer of the bottle |
+| Region | Where the spirit is from |
+| Type | Spirit type (Tequila, Scotch, Vodka, etc.) |
+| Age | How long the spirit was aged |
+| ABV | Alcohol By Volume percentage |
+| Rating | Your rating from 1-10 |
+| Notes | Personal tasting notes |
+| Keywords | Comma-separated tags for search |
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+---
+
+## Roadmap
+
+- [ ] NFC Tagging - Scan and save bottle data to NFC tags
+- [ ] Location Tracking - Save where you found a bottle
+- [ ] Cocktail Book - Track what you can make with your inventory
+- [ ] Personalized Suggestions - Recommendations based on your collection
+- [ ] Database Lookup - Search pre-populated bottle database
+- [ ] Cost-Per-Pour Calculator - Pricing for cocktails and pours
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+---
+
+## License
+
+Distributed under the MIT License. See `LICENSE.txt` for more information.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+---
+
+## Contact
 
 bottlrdev@gmail.com
 
-Project Link: https://github.com/sibire/bottlr
+Project Link: [https://github.com/Diagoras/Bottlr](https://github.com/Diagoras/Bottlr)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
-
----
-
-<!-- ACKNOWLEDGMENTS -->
-<h3 align="center">Acknowledgments</h3>
-
-Bottlr is currently in Alpha status, version 0.12.
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
----
-
-<!-- MARKDOWN LINKS & IMAGES -->
-<!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
