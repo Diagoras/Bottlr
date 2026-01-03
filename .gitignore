@@ -19,3 +19,4 @@ local.properties
 *.jks
 signing.properties
 firestore-debug.log
+app/google-services.json
