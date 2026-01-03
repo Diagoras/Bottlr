@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
@@ -34,6 +35,9 @@ import kotlinx.coroutines.launch
 class BottleDetailsFragment : Fragment() {
 
     private val viewModel: DetailsViewModel by viewModels()
+
+    private var navWindow: View? = null
+    private var isNavOpen = false
 
     // UI elements - matching description_screen.xml IDs
     private lateinit var bottleImage: ImageView
@@ -70,10 +74,61 @@ class BottleDetailsFragment : Fragment() {
         backButton = view.findViewById(R.id.backButton)
         nfcButton = view.findViewById(R.id.nfcButton)
 
+        setupNavWindow(view)
         setupObservers()
         setupClickListeners()
 
         return view
+    }
+
+    private fun setupNavWindow(view: View) {
+        navWindow = view.findViewById(R.id.nav_window)
+
+        view.findViewById<View>(R.id.menu_icon)?.setOnClickListener {
+            toggleNavWindow()
+        }
+
+        view.findViewById<View>(R.id.exit_nav_button)?.setOnClickListener {
+            closeNavWindow()
+        }
+
+        view.findViewById<View>(R.id.menu_home_button)?.setOnClickListener {
+            findNavController().navigate(R.id.homeFragment)
+        }
+
+        view.findViewById<View>(R.id.menu_liquorcab_button)?.setOnClickListener {
+            findNavController().navigate(R.id.bottleGalleryFragment)
+        }
+
+        view.findViewById<View>(R.id.menu_cocktail_button)?.setOnClickListener {
+            findNavController().navigate(R.id.cocktailGalleryFragment)
+        }
+
+        view.findViewById<View>(R.id.menu_settings_button)?.setOnClickListener {
+            findNavController().navigate(R.id.settingsFragment)
+        }
+    }
+
+    private fun toggleNavWindow() {
+        if (isNavOpen) closeNavWindow() else openNavWindow()
+    }
+
+    private fun openNavWindow() {
+        navWindow?.animate()
+            ?.translationX(0f)
+            ?.setDuration(300)
+            ?.setInterpolator(AccelerateDecelerateInterpolator())
+            ?.start()
+        isNavOpen = true
+    }
+
+    private fun closeNavWindow() {
+        navWindow?.animate()
+            ?.translationX(-420f * resources.displayMetrics.density)
+            ?.setDuration(300)
+            ?.setInterpolator(AccelerateDecelerateInterpolator())
+            ?.start()
+        isNavOpen = false
     }
 
     private fun setupObservers() {

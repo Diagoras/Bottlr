@@ -145,6 +145,7 @@ dependencies {
     // === INSTRUMENTED TESTING (src/androidTest/) ===
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.6.1'
+    androidTestImplementation 'androidx.test.espresso:espresso-intents:3.6.1'
     androidTestImplementation 'androidx.test.espresso:espresso-idling-resource:3.6.1'
 
     // Hilt testing
@@ -165,3 +166,80 @@ dependencies {
 }
 
 apply plugin: 'com.google.gms.google-services'
+
+// === Firebase Emulator Management via Docker ===
+
+def FIREBASE_CONTAINER_NAME = "bottlr-firebase-emulator"
+def FIREBASE_IMAGE = "spine3/firebase-emulator:latest"
+
+tasks.register('startFirebaseEmulators') {
+    group = 'verification'
+    description = 'Starts Firebase emulators in Docker for integration tests'
+
+    doLast {
+        // Check if container is already running
+        def checkResult = "docker ps -q -f name=${FIREBASE_CONTAINER_NAME}".execute()
+        checkResult.waitFor()
+        if (checkResult.text.trim()) {
+            println "Firebase emulator container already running"
+            return
+        }
+
+        // Remove any stopped container with same name
+        "docker rm -f ${FIREBASE_CONTAINER_NAME}".execute().waitFor()
+
+        println "Starting Firebase emulator container..."
+        def startCmd = [
+            'docker', 'run', '-d',
+            '--name', FIREBASE_CONTAINER_NAME,
+            '-p', '9099:9099',   // Auth
+            '-p', '8080:8080',   // Firestore
+            '-p', '9199:9199',   // Storage
+            '-p', '4000:4000',   // UI
+            '-p', '4400:4400',   // Hub
+            FIREBASE_IMAGE
+        ]
+        def proc = startCmd.execute()
+        proc.waitFor()
+        if (proc.exitValue() != 0) {
+            throw new GradleException("Failed to start Firebase container: ${proc.err.text}")
+        }
+
+        // Wait for emulators to be ready (check Auth endpoint)
+        println "Waiting for emulators..."
+        def maxWait = 60
+        def waited = 0
+        while (waited < maxWait) {
+            try {
+                Thread.sleep(2000)
+                waited += 2
+                // Check Auth emulator health endpoint
+                def response = new URL("http://localhost:9099").text
+                if (response.contains("authEmulator")) {
+                    println "Firebase emulators ready after ${waited}s"
+                    return
+                }
+            } catch (Exception e) {
+                print "."
+            }
+        }
+        throw new GradleException("Firebase emulators failed to start within ${maxWait}s")
+    }
+}
+
+tasks.register('stopFirebaseEmulators') {
+    group = 'verification'
+    description = 'Stops Firebase emulator Docker container'
+
+    doLast {
+        println "Stopping Firebase emulator container..."
+        "docker stop ${FIREBASE_CONTAINER_NAME}".execute().waitFor()
+        "docker rm ${FIREBASE_CONTAINER_NAME}".execute().waitFor()
+    }
+}
+
+// Wire up emulator lifecycle to connected tests
+tasks.matching { it.name == 'connectedDebugAndroidTest' }.configureEach {
+    dependsOn startFirebaseEmulators
+    finalizedBy stopFirebaseEmulators
+}

@@ -2,6 +2,7 @@ package com.bottlr.app.ui
 
 import app.cash.turbine.test
 import com.bottlr.app.data.repository.BottleRepository
+import com.bottlr.app.data.repository.CocktailRepository
 import com.bottlr.app.ui.gallery.GalleryViewModel
 import com.bottlr.app.util.MainDispatcherRule
 import com.bottlr.app.util.TestFixtures
@@ -34,11 +35,16 @@ class GalleryViewModelTest {
     @MockK
     private lateinit var repository: BottleRepository
 
+    @MockK
+    private lateinit var cocktailRepository: CocktailRepository
+
     private lateinit var viewModel: GalleryViewModel
 
     @Before
     fun setup() {
         MockKAnnotations.init(this)
+        // Default stub for cocktails (called in constructor)
+        every { cocktailRepository.allCocktails } returns flowOf(emptyList())
     }
 
     // === INITIAL STATE TESTS ===
@@ -49,7 +55,7 @@ class GalleryViewModelTest {
         every { repository.allBottles } returns flowOf(emptyList())
 
         // When
-        viewModel = GalleryViewModel(repository)
+        viewModel = GalleryViewModel(repository, cocktailRepository)
 
         // Then
         assertTrue(viewModel.isDrinkMode.value)
@@ -61,7 +67,7 @@ class GalleryViewModelTest {
         every { repository.allBottles } returns flowOf(emptyList())
 
         // When
-        viewModel = GalleryViewModel(repository)
+        viewModel = GalleryViewModel(repository, cocktailRepository)
 
         // Then
         viewModel.bottles.test {
@@ -78,7 +84,7 @@ class GalleryViewModelTest {
         every { repository.allBottles } returns flowOf(bottles)
 
         // When
-        viewModel = GalleryViewModel(repository)
+        viewModel = GalleryViewModel(repository, cocktailRepository)
 
         // Then
         viewModel.bottles.test {
@@ -94,7 +100,7 @@ class GalleryViewModelTest {
     fun `setDrinkMode to false switches to cocktails mode`() = runTest {
         // Given
         every { repository.allBottles } returns flowOf(emptyList())
-        viewModel = GalleryViewModel(repository)
+        viewModel = GalleryViewModel(repository, cocktailRepository)
 
         // When
         viewModel.setDrinkMode(false)
@@ -107,7 +113,7 @@ class GalleryViewModelTest {
     fun `setDrinkMode to true switches back to bottles mode`() = runTest {
         // Given
         every { repository.allBottles } returns flowOf(emptyList())
-        viewModel = GalleryViewModel(repository)
+        viewModel = GalleryViewModel(repository, cocktailRepository)
         viewModel.setDrinkMode(false)
 
         // When
@@ -117,35 +123,41 @@ class GalleryViewModelTest {
         assertTrue(viewModel.isDrinkMode.value)
     }
 
-    // === CURRENT ITEMS TESTS ===
+    // === BOTTLES/COCKTAILS ITEMS TESTS ===
 
     @Test
-    fun `currentItems returns bottles when in bottle mode`() = runTest {
+    fun `bottles returns items in bottle mode`() = runTest {
         // Given
         val bottles = TestFixtures.bottles(2)
         every { repository.allBottles } returns flowOf(bottles)
-        viewModel = GalleryViewModel(repository)
+        viewModel = GalleryViewModel(repository, cocktailRepository)
 
         // When in bottle mode (default)
+        assertTrue(viewModel.isDrinkMode.value)
 
         // Then
-        viewModel.currentItems.test {
+        viewModel.bottles.test {
             val items = awaitItem()
             assertEquals(2, items.size)
         }
     }
 
     @Test
-    fun `currentItems returns empty when in cocktail mode`() = runTest {
+    fun `cocktails returns items in cocktail mode`() = runTest {
         // Given
-        val bottles = TestFixtures.bottles(2)
-        every { repository.allBottles } returns flowOf(bottles)
-        viewModel = GalleryViewModel(repository)
+        val cocktails = TestFixtures.cocktails(3)
+        every { repository.allBottles } returns flowOf(emptyList())
+        every { cocktailRepository.allCocktails } returns flowOf(cocktails)
+        viewModel = GalleryViewModel(repository, cocktailRepository)
 
         // When switching to cocktail mode
         viewModel.setDrinkMode(false)
 
-        // Then - verify mode changed (cocktails not implemented yet returns empty)
+        // Then
         assertFalse(viewModel.isDrinkMode.value)
+        viewModel.cocktails.test {
+            val items = awaitItem()
+            assertEquals(3, items.size)
+        }
     }
 }

@@ -66,6 +66,11 @@ class HomeFragment : Fragment() {
             findNavController().navigate(R.id.action_home_to_gallery)
         }
 
+        // Sign-in button navigates to settings
+        view.findViewById<View>(R.id.sign_in_button_home)?.setOnClickListener {
+            findNavController().navigate(R.id.action_home_to_settings)
+        }
+
         return view
     }
 

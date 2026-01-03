@@ -1,5 +1,6 @@
 package com.bottlr.app.data.repository
 
+import android.content.Context
 import app.cash.turbine.test
 import com.bottlr.app.data.local.dao.BottleDao
 import com.bottlr.app.util.MainDispatcherRule
@@ -44,6 +45,9 @@ class BottleRepositoryTest {
     @MockK
     private lateinit var auth: FirebaseAuth
 
+    @MockK
+    private lateinit var context: Context
+
     private lateinit var repository: BottleRepository
 
     @Before
@@ -51,7 +55,7 @@ class BottleRepositoryTest {
         MockKAnnotations.init(this)
         // Default stub for allBottles (called in constructor)
         every { dao.getAllBottles() } returns flowOf(emptyList())
-        repository = BottleRepository(dao, firestore, storage, auth)
+        repository = BottleRepository(dao, firestore, storage, auth, context)
     }
 
     // === CRUD TESTS ===
@@ -198,7 +202,7 @@ class BottleRepositoryTest {
         // Given - recreate repository with stubbed data
         val bottles = TestFixtures.bottles(3)
         every { dao.getAllBottles() } returns flowOf(bottles)
-        val testRepository = BottleRepository(dao, firestore, storage, auth)
+        val testRepository = BottleRepository(dao, firestore, storage, auth, context)
 
         // When/Then
         testRepository.searchByField("Unknown", "query").test {
@@ -240,7 +244,7 @@ class BottleRepositoryTest {
         // Given - recreate repository with stubbed data
         val bottles = TestFixtures.bottles(5)
         every { dao.getAllBottles() } returns flowOf(bottles)
-        val testRepository = BottleRepository(dao, firestore, storage, auth)
+        val testRepository = BottleRepository(dao, firestore, storage, auth, context)
 
         // When/Then
         testRepository.allBottles.test {

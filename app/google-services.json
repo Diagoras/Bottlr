@@ -12,7 +12,20 @@
           "package_name": "com.bottlr.app"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "542444555432-qq99v6mv9j4ussb3itu8kvvhojrmt5ve.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.bottlr.app",
+            "certificate_hash": "799b6edaeda298d4ab20ffdaece78c1e400ac6e9"
+          }
+        },
+        {
+          "client_id": "542444555432-gbfavq7qa7j92imhf47j4aus5bko4vm3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyAW9BGVgVSZZVVwhdJOVD6KrkIwLR7EQ88"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "542444555432-gbfavq7qa7j92imhf47j4aus5bko4vm3.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

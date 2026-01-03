@@ -65,4 +65,112 @@ class NavigationFlowTest {
         onView(withId(R.id.liquorRecycler))
             .check(matches(isDisplayed()))
     }
+
+    @Test
+    fun navigationToCocktails_displaysCocktailScreen() {
+        // Open menu
+        onView(withId(R.id.menu_icon))
+            .perform(click())
+
+        // Click Cocktail Maker
+        onView(withId(R.id.menu_cocktail_button))
+            .perform(click())
+
+        // Verify we're on the cocktail gallery screen (uses same RecyclerView ID)
+        onView(withId(R.id.liquorRecycler))
+            .check(matches(isDisplayed()))
+    }
+
+    @Test
+    fun navigationToSettings_displaysSettingsScreen() {
+        // Open menu
+        onView(withId(R.id.menu_icon))
+            .perform(click())
+
+        // Click Settings
+        onView(withId(R.id.menu_settings_button))
+            .perform(click())
+
+        // Verify we're on settings (check for login button or user text)
+        onView(withId(R.id.signed_in_user))
+            .check(matches(isDisplayed()))
+    }
+
+    @Test
+    fun galleryScreen_menuButtonOpensNavWindow() {
+        // Navigate to gallery first
+        onView(withId(R.id.menu_icon)).perform(click())
+        onView(withId(R.id.menu_liquorcab_button)).perform(click())
+
+        // Verify we're on gallery
+        onView(withId(R.id.liquorRecycler)).check(matches(isDisplayed()))
+
+        // Open menu from gallery screen
+        onView(withId(R.id.menu_icon)).perform(click())
+
+        // Verify nav menu is visible
+        onView(withId(R.id.menu_home_button)).check(matches(isDisplayed()))
+    }
+
+    @Test
+    fun galleryScreen_canNavigateToHomeViaMenu() {
+        // Navigate to gallery
+        onView(withId(R.id.menu_icon)).perform(click())
+        onView(withId(R.id.menu_liquorcab_button)).perform(click())
+
+        // Open menu and go home
+        onView(withId(R.id.menu_icon)).perform(click())
+        onView(withId(R.id.menu_home_button)).perform(click())
+
+        // Verify we're back on home (title displayed)
+        onView(withId(R.id.Title_text))
+            .check(matches(isDisplayed()))
+            .check(matches(withText("Bottlr")))
+    }
+
+    @Test
+    fun galleryScreen_canNavigateToSettingsViaMenu() {
+        // Navigate to gallery
+        onView(withId(R.id.menu_icon)).perform(click())
+        onView(withId(R.id.menu_liquorcab_button)).perform(click())
+
+        // Open menu and go to settings
+        onView(withId(R.id.menu_icon)).perform(click())
+        onView(withId(R.id.menu_settings_button)).perform(click())
+
+        // Verify we're on settings
+        onView(withId(R.id.signed_in_user)).check(matches(isDisplayed()))
+    }
+
+    @Test
+    fun settingsScreen_menuButtonOpensNavWindow() {
+        // Navigate to settings
+        onView(withId(R.id.menu_icon)).perform(click())
+        onView(withId(R.id.menu_settings_button)).perform(click())
+
+        // Verify we're on settings
+        onView(withId(R.id.signed_in_user)).check(matches(isDisplayed()))
+
+        // Open menu from settings screen
+        onView(withId(R.id.menu_icon)).perform(click())
+
+        // Verify nav menu is visible
+        onView(withId(R.id.menu_home_button)).check(matches(isDisplayed()))
+    }
+
+    @Test
+    fun settingsScreen_canNavigateToHomeViaMenu() {
+        // Navigate to settings
+        onView(withId(R.id.menu_icon)).perform(click())
+        onView(withId(R.id.menu_settings_button)).perform(click())
+
+        // Open menu and go home
+        onView(withId(R.id.menu_icon)).perform(click())
+        onView(withId(R.id.menu_home_button)).perform(click())
+
+        // Verify we're back on home
+        onView(withId(R.id.Title_text))
+            .check(matches(isDisplayed()))
+            .check(matches(withText("Bottlr")))
+    }
 }

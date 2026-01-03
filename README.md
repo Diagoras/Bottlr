@@ -103,6 +103,7 @@ app/src/main/kotlin/com/bottlr/app/
 - Android SDK 35
 - JDK 17
 - Android device or emulator running Android 10.0+ (API 29+)
+- Docker (for running Firebase integration tests)
 
 ### Installation
 
@@ -138,14 +139,14 @@ The signed AAB will be at `app/build/outputs/bundle/release/app-release.aab`
 
 Bottlr has comprehensive test coverage:
 
-### Unit Tests (51 tests)
+### Unit Tests (64 tests)
 ```sh
 ./gradlew test
 ```
 
 Tests for ViewModels, Repositories, and business logic.
 
-### Instrumented Tests (29 tests)
+### Instrumented Tests (69 tests)
 ```sh
 ./gradlew connectedDebugAndroidTest
 ```
@@ -153,8 +154,27 @@ Tests for ViewModels, Repositories, and business logic.
 Includes:
 - **DAO Tests**: Room database operations
 - **UI Flow Tests**: Add, view, edit bottle workflows
+- **Photo Flow Tests**: Camera and gallery integration
 - **Navigation Tests**: Screen navigation
+- **Firebase Sync Tests**: Cloud sync and data erasure
 - **Smoke Tests**: App startup verification
+
+### Firebase Integration Tests
+
+Firebase integration tests run against local emulators via Docker. **Docker must be installed** for these tests to work.
+
+The emulators start automatically when running instrumented tests and stop when tests complete:
+
+```sh
+# Docker will be started/stopped automatically
+./gradlew connectedDebugAndroidTest
+
+# Or manually manage emulators:
+./gradlew startFirebaseEmulators   # Start Docker container
+./gradlew stopFirebaseEmulators    # Stop Docker container
+```
+
+Firebase Emulator UI is available at http://localhost:4000 while tests run.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 

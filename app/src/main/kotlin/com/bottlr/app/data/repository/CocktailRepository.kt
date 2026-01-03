@@ -1,14 +1,17 @@
 package com.bottlr.app.data.repository
 
+import android.content.Context
 import android.net.Uri
 import com.bottlr.app.data.local.dao.CocktailDao
 import com.bottlr.app.data.local.entities.CocktailEntity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.tasks.await
+import java.io.File
 import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -18,7 +21,8 @@ class CocktailRepository @Inject constructor(
     private val cocktailDao: CocktailDao,
     private val firestore: FirebaseFirestore,
     private val storage: FirebaseStorage,
-    private val auth: FirebaseAuth
+    private val auth: FirebaseAuth,
+    @ApplicationContext private val context: Context
 ) {
     val allCocktails: Flow<List<CocktailEntity>> = cocktailDao.getAllCocktails()
 
@@ -52,6 +56,9 @@ class CocktailRepository @Inject constructor(
         val cocktail = cocktailDao.getCocktailById(cocktailId).first() ?: return
         val userId = auth.currentUser?.uid ?: return
 
+        // Upload photo first to get URL
+        val photoUrl = cocktail.photoUri?.let { uploadPhoto(cocktailId, it) }
+
         val data = hashMapOf(
             "name" to cocktail.name,
             "base" to cocktail.base,
@@ -63,7 +70,8 @@ class CocktailRepository @Inject constructor(
             "notes" to cocktail.notes,
             "keywords" to cocktail.keywords,
             "rating" to cocktail.rating,
-            "updatedAt" to cocktail.updatedAt
+            "updatedAt" to cocktail.updatedAt,
+            "photoUrl" to photoUrl
         )
 
         val docRef = firestore.collection("users")
@@ -73,8 +81,6 @@ class CocktailRepository @Inject constructor(
 
         docRef.set(data).await()
         cocktailDao.markSynced(cocktailId, docRef.id)
-
-        cocktail.photoUri?.let { uploadPhoto(cocktailId, it) }
     }
 
     suspend fun syncAllToFirestore() {
@@ -94,6 +100,10 @@ class CocktailRepository @Inject constructor(
             .await()
 
         snapshot.documents.forEach { doc ->
+            // Download photo if available
+            val photoUrl = doc.getString("photoUrl")
+            val localPhotoUri = photoUrl?.let { downloadPhoto(doc.id, it) }
+
             val cocktail = CocktailEntity(
                 name = doc.getString("name") ?: "",
                 base = doc.getString("base") ?: "",
@@ -102,6 +112,7 @@ class CocktailRepository @Inject constructor(
                 liqueur = doc.getString("liqueur") ?: "",
                 garnish = doc.getString("garnish") ?: "",
                 extra = doc.getString("extra") ?: "",
+                photoUri = localPhotoUri,
                 notes = doc.getString("notes") ?: "",
                 keywords = doc.getString("keywords") ?: "",
                 rating = doc.getDouble("rating")?.toFloat(),
@@ -113,12 +124,32 @@ class CocktailRepository @Inject constructor(
         }
     }
 
-    private suspend fun uploadPhoto(cocktailId: Long, photoUri: String) {
-        val userId = auth.currentUser?.uid ?: return
-        val uri = Uri.parse(photoUri)
-        val ref = storage.reference
-            .child("users/$userId/cocktails/$cocktailId.jpg")
-        ref.putFile(uri).await()
+    private suspend fun uploadPhoto(cocktailId: Long, photoUri: String): String? {
+        val userId = auth.currentUser?.uid ?: return null
+        return try {
+            val uri = Uri.parse(photoUri)
+            val ref = storage.reference.child("users/$userId/cocktails/$cocktailId.jpg")
+            ref.putFile(uri).await()
+            ref.downloadUrl.await().toString()
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    private suspend fun downloadPhoto(docId: String, photoUrl: String): String? {
+        return try {
+            val ref = storage.getReferenceFromUrl(photoUrl)
+
+            // Create local file
+            val photosDir = File(context.filesDir, "photos/cocktails")
+            photosDir.mkdirs()
+            val localFile = File(photosDir, "$docId.jpg")
+
+            ref.getFile(localFile).await()
+            Uri.fromFile(localFile).toString()
+        } catch (e: Exception) {
+            null
+        }
     }
 
     private suspend fun deleteFromFirestore(firestoreId: String) {
@@ -129,5 +160,33 @@ class CocktailRepository @Inject constructor(
             .document(firestoreId)
             .delete()
             .await()
+    }
+
+    /**
+     * Erase all cocktails from Firestore for the current user.
+     * Does not delete local data.
+     */
+    suspend fun eraseAllFromFirestore() {
+        val userId = auth.currentUser?.uid ?: return
+
+        val snapshot = firestore.collection("users")
+            .document(userId)
+            .collection("cocktails")
+            .get()
+            .await()
+
+        snapshot.documents.forEach { doc ->
+            doc.reference.delete().await()
+        }
+    }
+
+    /**
+     * Erase all cocktails from local database.
+     */
+    suspend fun eraseAllLocal() {
+        val cocktails = allCocktails.first()
+        cocktails.forEach { cocktail ->
+            cocktailDao.delete(cocktail)
+        }
     }
 }

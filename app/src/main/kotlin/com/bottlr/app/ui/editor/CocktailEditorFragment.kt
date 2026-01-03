@@ -20,45 +20,35 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.bottlr.app.R
+import com.bottlr.app.data.local.entities.CocktailEntity
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
-/**
- * BottleEditorFragment - Add or edit a bottle
- *
- * Uses EditorViewModel which:
- * - Preserves state across configuration changes (rotation!)
- * - Handles photo URI persistence
- * - Manages save/update operations
- * - Syncs to Firestore automatically
- */
 @AndroidEntryPoint
-class BottleEditorFragment : Fragment() {
+class CocktailEditorFragment : Fragment() {
 
-    private val viewModel: EditorViewModel by viewModels()
+    private val viewModel: CocktailEditorViewModel by viewModels()
 
     private var navWindow: View? = null
     private var isNavOpen = false
 
-    // UI fields
     private lateinit var nameField: EditText
-    private lateinit var distilleryField: EditText
-    private lateinit var typeField: EditText
-    private lateinit var abvField: EditText
-    private lateinit var ageField: EditText
+    private lateinit var baseField: EditText
+    private lateinit var mixerField: EditText
+    private lateinit var juiceField: EditText
+    private lateinit var liqueurField: EditText
+    private lateinit var garnishField: EditText
+    private lateinit var extraField: EditText
     private lateinit var notesField: EditText
-    private lateinit var regionField: EditText
     private lateinit var keywordsField: EditText
     private lateinit var ratingField: EditText
-    private lateinit var photoPreview: ImageView
     private lateinit var saveButton: Button
     private lateinit var addPhotoButton: Button
 
     private var tempPhotoUri: Uri? = null
 
-    // Modern Activity Result API (replaces deprecated startActivityForResult)
     private val galleryLauncher = registerForActivityResult(
         ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
@@ -88,21 +78,20 @@ class BottleEditorFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.addbottlewindow, container, false)
+        val view = inflater.inflate(R.layout.addcocktailwindow, container, false)
 
-        // Initialize UI fields
-        nameField = view.findViewById(R.id.bottleNameField)
-        distilleryField = view.findViewById(R.id.distillerField)
-        typeField = view.findViewById(R.id.spiritTypeField)
-        abvField = view.findViewById(R.id.abvField)
-        ageField = view.findViewById(R.id.ageField)
+        nameField = view.findViewById(R.id.cocktailNameField)
+        baseField = view.findViewById(R.id.baseField)
+        mixerField = view.findViewById(R.id.mixerField)
+        juiceField = view.findViewById(R.id.juiceField)
+        liqueurField = view.findViewById(R.id.liqueurField)
+        garnishField = view.findViewById(R.id.garnishField)
+        extraField = view.findViewById(R.id.extraField)
         notesField = view.findViewById(R.id.tastingNotesField)
-        regionField = view.findViewById(R.id.regionField)
         keywordsField = view.findViewById(R.id.keywordsField)
         ratingField = view.findViewById(R.id.ratingField)
-        photoPreview = view.findViewById(R.id.imagePreview)
-        saveButton = view.findViewById(R.id.saveButton)
-        addPhotoButton = view.findViewById(R.id.addPhotoButton)
+        saveButton = view.findViewById(R.id.saveButtonCocktail)
+        addPhotoButton = view.findViewById(R.id.addPhotoButtonCocktail)
 
         setupNavWindow(view)
         setupObservers()
@@ -162,25 +151,12 @@ class BottleEditorFragment : Fragment() {
     }
 
     private fun setupObservers() {
-        // Observe bottle if editing (auto-populates fields!)
         viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.bottle.collectLatest { bottle ->
-                bottle?.let { populateFields(it) }
+            viewModel.cocktail.collectLatest { cocktail ->
+                cocktail?.let { populateFields(it) }
             }
         }
 
-        // Observe photo URI (survives rotation!)
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.photoUri.collectLatest { uri ->
-                uri?.let {
-                    Glide.with(this@BottleEditorFragment)
-                        .load(it)
-                        .into(photoPreview)
-                }
-            }
-        }
-
-        // Observe save status
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.saveStatus.collectLatest { status ->
                 when (status) {
@@ -189,17 +165,17 @@ class BottleEditorFragment : Fragment() {
                         saveButton.text = "Saving..."
                     }
                     is SaveStatus.Success -> {
-                        Snackbar.make(requireView(), "Bottle saved successfully!", Snackbar.LENGTH_SHORT).show()
+                        Snackbar.make(requireView(), "Cocktail saved!", Snackbar.LENGTH_SHORT).show()
                         findNavController().navigateUp()
                     }
                     is SaveStatus.Error -> {
                         Snackbar.make(requireView(), "Error: ${status.message}", Snackbar.LENGTH_LONG).show()
                         saveButton.isEnabled = true
-                        saveButton.text = "Save"
+                        saveButton.text = "Save Cocktail"
                     }
                     is SaveStatus.Idle -> {
                         saveButton.isEnabled = true
-                        saveButton.text = "Save"
+                        saveButton.text = "Save Cocktail"
                     }
                 }
             }
@@ -208,7 +184,7 @@ class BottleEditorFragment : Fragment() {
 
     private fun setupClickListeners() {
         saveButton.setOnClickListener {
-            saveBottle()
+            saveCocktail()
         }
 
         addPhotoButton.setOnClickListener {
@@ -216,21 +192,22 @@ class BottleEditorFragment : Fragment() {
         }
     }
 
-    private fun saveBottle() {
+    private fun saveCocktail() {
         val name = nameField.text.toString().trim()
         if (name.isEmpty()) {
             Snackbar.make(requireView(), "Name is required", Snackbar.LENGTH_SHORT).show()
             return
         }
 
-        viewModel.saveBottle(
+        viewModel.saveCocktail(
             name = name,
-            distillery = distilleryField.text.toString(),
-            type = typeField.text.toString(),
-            abv = abvField.text.toString().toFloatOrNull(),
-            age = ageField.text.toString().toIntOrNull(),
+            base = baseField.text.toString(),
+            mixer = mixerField.text.toString(),
+            juice = juiceField.text.toString(),
+            liqueur = liqueurField.text.toString(),
+            garnish = garnishField.text.toString(),
+            extra = extraField.text.toString(),
             notes = notesField.text.toString(),
-            region = regionField.text.toString(),
             keywords = keywordsField.text.toString(),
             rating = ratingField.text.toString().toFloatOrNull()
         )
@@ -265,7 +242,7 @@ class BottleEditorFragment : Fragment() {
 
     private fun launchCameraIntent() {
         val contentValues = ContentValues().apply {
-            put(MediaStore.Images.Media.DISPLAY_NAME, "bottle_${System.currentTimeMillis()}.jpg")
+            put(MediaStore.Images.Media.DISPLAY_NAME, "cocktail_${System.currentTimeMillis()}.jpg")
             put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
         }
 
@@ -279,15 +256,16 @@ class BottleEditorFragment : Fragment() {
         }
     }
 
-    private fun populateFields(bottle: com.bottlr.app.data.local.entities.BottleEntity) {
-        nameField.setText(bottle.name)
-        distilleryField.setText(bottle.distillery)
-        typeField.setText(bottle.type)
-        abvField.setText(bottle.abv?.toString() ?: "")
-        ageField.setText(bottle.age?.toString() ?: "")
-        notesField.setText(bottle.notes)
-        regionField.setText(bottle.region)
-        keywordsField.setText(bottle.keywords)
-        ratingField.setText(bottle.rating?.toString() ?: "")
+    private fun populateFields(cocktail: CocktailEntity) {
+        nameField.setText(cocktail.name)
+        baseField.setText(cocktail.base)
+        mixerField.setText(cocktail.mixer)
+        juiceField.setText(cocktail.juice)
+        liqueurField.setText(cocktail.liqueur)
+        garnishField.setText(cocktail.garnish)
+        extraField.setText(cocktail.extra)
+        notesField.setText(cocktail.notes)
+        keywordsField.setText(cocktail.keywords)
+        ratingField.setText(cocktail.rating?.toString() ?: "")
     }
 }

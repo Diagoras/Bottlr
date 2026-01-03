@@ -5,6 +5,7 @@
     android:id="@+id/homescreen"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
     tools:context=".MainActivity">
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -386,41 +387,6 @@
             app:srcCompat="@drawable/ic_menu_gallery" />
 
         <Button
-            android:id="@+id/menu_search_button"
-            android:layout_width="214dp"
-            android:layout_height="46dp"
-            android:layout_marginStart="20dp"
-            android:layout_marginTop="100dp"
-            android:layout_marginEnd="75dp"
-            android:elevation="5dp"
-            android:layout_marginBottom="50dp"
-            android:background="@color/transparent"
-            android:clickable="true"
-                        android:paddingStart="34sp"
-            android:text="Search Cloud"
-            android:textSize="16sp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <ImageView
-            android:id="@+id/search_nav_icon"
-            android:layout_width="50dp"
-            android:layout_height="36dp"
-            android:layout_marginStart="20dp"
-            android:layout_marginTop="100dp"
-            android:layout_marginBottom="50dp"
-            android:elevation="5dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/baseline_search_24" />
-
-        <Button
             android:id="@+id/menu_settings_button"
             android:layout_width="214dp"
             android:layout_height="46dp"
@@ -454,37 +420,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/settings" />
-
-        <Button
-            android:id="@+id/menu_locations_button"
-            android:layout_width="214dp"
-            android:layout_height="46dp"
-            android:layout_marginStart="-90dp"
-            android:layout_marginTop="150dp"
-            android:elevation="5dp"
-            android:layout_marginEnd="75dp"
-            android:background="@color/transparent"
-            android:clickable="true"
-                        android:paddingStart="3sp"
-            android:text="Locations"
-            android:textSize="16sp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <ImageView
-            android:id="@+id/menu_locations_icon"
-            android:layout_width="50dp"
-            android:layout_height="36dp"
-            android:layout_marginStart="-330dp"
-            android:elevation="5dp"
-            android:layout_marginTop="150dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/baseline_location_pin_24" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

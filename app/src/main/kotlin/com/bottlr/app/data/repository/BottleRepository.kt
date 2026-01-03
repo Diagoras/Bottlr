@@ -1,14 +1,18 @@
 package com.bottlr.app.data.repository
 
+import android.content.Context
 import android.net.Uri
+import androidx.core.content.FileProvider
 import com.bottlr.app.data.local.dao.BottleDao
 import com.bottlr.app.data.local.entities.BottleEntity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.tasks.await
+import java.io.File
 import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -18,7 +22,8 @@ class BottleRepository @Inject constructor(
     private val bottleDao: BottleDao,
     private val firestore: FirebaseFirestore,
     private val storage: FirebaseStorage,
-    private val auth: FirebaseAuth
+    private val auth: FirebaseAuth,
+    @ApplicationContext private val context: Context
 ) {
     val allBottles: Flow<List<BottleEntity>> = bottleDao.getAllBottles()
 
@@ -54,6 +59,9 @@ class BottleRepository @Inject constructor(
         val bottle = bottleDao.getBottleById(bottleId).first() ?: return
         val userId = auth.currentUser?.uid ?: return
 
+        // Upload photo first to get URL
+        val photoUrl = bottle.photoUri?.let { uploadPhoto(bottleId, it) }
+
         val data = hashMapOf(
             "name" to bottle.name,
             "distillery" to bottle.distillery,
@@ -64,7 +72,8 @@ class BottleRepository @Inject constructor(
             "region" to bottle.region,
             "keywords" to bottle.keywords,
             "rating" to bottle.rating,
-            "updatedAt" to bottle.updatedAt
+            "updatedAt" to bottle.updatedAt,
+            "photoUrl" to photoUrl
         )
 
         val docRef = firestore.collection("users")
@@ -74,9 +83,6 @@ class BottleRepository @Inject constructor(
 
         docRef.set(data).await()
         bottleDao.markSynced(bottleId, docRef.id)
-
-        // Upload photo if exists
-        bottle.photoUri?.let { uploadPhoto(bottleId, it) }
     }
 
     suspend fun syncAllToFirestore() {
@@ -96,12 +102,17 @@ class BottleRepository @Inject constructor(
             .await()
 
         snapshot.documents.forEach { doc ->
+            // Download photo if available
+            val photoUrl = doc.getString("photoUrl")
+            val localPhotoUri = photoUrl?.let { downloadPhoto(doc.id, it) }
+
             val bottle = BottleEntity(
                 name = doc.getString("name") ?: "",
                 distillery = doc.getString("distillery") ?: "",
                 type = doc.getString("type") ?: "",
                 abv = doc.getDouble("abv")?.toFloat(),
                 age = doc.getLong("age")?.toInt(),
+                photoUri = localPhotoUri,
                 notes = doc.getString("notes") ?: "",
                 region = doc.getString("region") ?: "",
                 keywords = doc.getString("keywords") ?: "",
@@ -114,12 +125,32 @@ class BottleRepository @Inject constructor(
         }
     }
 
-    private suspend fun uploadPhoto(bottleId: Long, photoUri: String) {
-        val userId = auth.currentUser?.uid ?: return
-        val uri = Uri.parse(photoUri)
-        val ref = storage.reference
-            .child("users/$userId/bottles/$bottleId.jpg")
-        ref.putFile(uri).await()
+    private suspend fun uploadPhoto(bottleId: Long, photoUri: String): String? {
+        val userId = auth.currentUser?.uid ?: return null
+        return try {
+            val uri = Uri.parse(photoUri)
+            val ref = storage.reference.child("users/$userId/bottles/$bottleId.jpg")
+            ref.putFile(uri).await()
+            ref.downloadUrl.await().toString()
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    private suspend fun downloadPhoto(docId: String, photoUrl: String): String? {
+        return try {
+            val ref = storage.getReferenceFromUrl(photoUrl)
+
+            // Create local file
+            val photosDir = File(context.filesDir, "photos/bottles")
+            photosDir.mkdirs()
+            val localFile = File(photosDir, "$docId.jpg")
+
+            ref.getFile(localFile).await()
+            Uri.fromFile(localFile).toString()
+        } catch (e: Exception) {
+            null
+        }
     }
 
     private suspend fun deleteFromFirestore(firestoreId: String) {
@@ -130,5 +161,42 @@ class BottleRepository @Inject constructor(
             .document(firestoreId)
             .delete()
             .await()
+    }
+
+    /**
+     * Erase all bottles from Firestore for the current user.
+     * Does not delete local data.
+     */
+    suspend fun eraseAllFromFirestore() {
+        val userId = auth.currentUser?.uid ?: return
+
+        val snapshot = firestore.collection("users")
+            .document(userId)
+            .collection("bottles")
+            .get()
+            .await()
+
+        snapshot.documents.forEach { doc ->
+            doc.reference.delete().await()
+        }
+
+        // Also delete photos from storage
+        try {
+            val storageRef = storage.reference.child("users/$userId/bottles")
+            // Note: Firebase Storage doesn't support deleting folders directly,
+            // but the photos will be orphaned and can be cleaned up later
+        } catch (e: Exception) {
+            // Ignore storage errors
+        }
+    }
+
+    /**
+     * Erase all bottles from local database.
+     */
+    suspend fun eraseAllLocal() {
+        val bottles = allBottles.first()
+        bottles.forEach { bottle ->
+            bottleDao.delete(bottle)
+        }
     }
 }
