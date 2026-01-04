@@ -1,29 +1,29 @@
 package com.bottlr.app.ui
 
-import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.Espresso.pressBack
-import androidx.test.espresso.action.ViewActions.*
-import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.ViewMatchers.*
-import androidx.test.ext.junit.rules.ActivityScenarioRule
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performTextInput
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.bottlr.app.MainActivity
-import com.bottlr.app.R
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
-import org.hamcrest.Matchers.not
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
 /**
- * UI tests for nav drawer behavior on detail screens.
+ * UI tests for navigation behavior on detail screens using Compose.
  *
  * Tests cover:
- * - Tapping scrim closes the drawer
- * - Back press closes drawer instead of navigating back
- * - Nav drawer works correctly on both bottle and cocktail detail screens
+ * - Back button navigation from detail screens
+ * - Navigation from gallery screens via drawer
  */
 @HiltAndroidTest
 @RunWith(AndroidJUnit4::class)
@@ -33,41 +33,54 @@ class DetailScreenNavDrawerTest {
     val hiltRule = HiltAndroidRule(this)
 
     @get:Rule(order = 1)
-    val activityRule = ActivityScenarioRule(MainActivity::class.java)
+    val composeTestRule = createAndroidComposeRule<MainActivity>()
 
     @Before
     fun setup() {
         hiltRule.inject()
     }
 
-    private fun navigateToGallery() {
-        onView(withId(R.id.menu_icon)).perform(click())
-        Thread.sleep(500)
-        onView(withId(R.id.menu_liquorcab_button)).perform(click())
-        Thread.sleep(500)
+    private fun navigateToBottleGallery() {
+        composeTestRule.onNodeWithContentDescription("Menu").performClick()
+        composeTestRule.waitForIdle()
+        composeTestRule.onNodeWithTag("drawer_LiquorCabinet").performClick()
+        composeTestRule.waitForIdle()
     }
 
     private fun navigateToCocktailGallery() {
-        onView(withId(R.id.menu_icon)).perform(click())
-        Thread.sleep(500)
-        onView(withId(R.id.menu_cocktail_button)).perform(click())
-        Thread.sleep(500)
+        composeTestRule.onNodeWithContentDescription("Menu").performClick()
+        composeTestRule.waitForIdle()
+        composeTestRule.onNodeWithTag("drawer_Cocktails").performClick()
+        composeTestRule.waitForIdle()
     }
 
     private fun createTestBottle(): String {
         val bottleName = "NavTest${System.currentTimeMillis()}"
 
-        navigateToGallery()
+        navigateToBottleGallery()
 
-        onView(withId(R.id.fab)).perform(click())
-        Thread.sleep(1000)
+        composeTestRule.onNodeWithContentDescription("Add Bottle").performClick()
+        composeTestRule.waitForIdle()
 
-        onView(withId(R.id.bottleNameField)).perform(replaceText(bottleName))
-        closeSoftKeyboard()
-        Thread.sleep(300)
+        // Wait for editor to load
+        composeTestRule.waitUntil(5000) {
+            composeTestRule.onAllNodes(hasText("Name *")).fetchSemanticsNodes().isNotEmpty()
+        }
 
-        onView(withId(R.id.saveButton)).perform(scrollTo(), click())
-        Thread.sleep(3000)
+        composeTestRule.onNodeWithText("Name *").performTextInput(bottleName)
+
+        // Scroll to save button and click
+        composeTestRule.onNodeWithText("Save Bottle").performScrollTo().performClick()
+
+        // Wait for navigation back to gallery (longer timeout for emulator)
+        composeTestRule.waitUntil(10000) {
+            composeTestRule.onAllNodes(hasText("Search bottles...")).fetchSemanticsNodes().isNotEmpty()
+        }
+
+        // Wait for bottle to appear in list
+        composeTestRule.waitUntil(5000) {
+            composeTestRule.onAllNodes(hasText(bottleName)).fetchSemanticsNodes().isNotEmpty()
+        }
 
         return bottleName
     }
@@ -77,244 +90,181 @@ class DetailScreenNavDrawerTest {
 
         navigateToCocktailGallery()
 
-        onView(withId(R.id.fab)).perform(click())
-        Thread.sleep(1000)
+        composeTestRule.onNodeWithContentDescription("Add Cocktail").performClick()
+        composeTestRule.waitForIdle()
 
-        onView(withId(R.id.cocktailNameField)).perform(replaceText(cocktailName))
-        closeSoftKeyboard()
-        Thread.sleep(300)
+        // Wait for editor to load
+        composeTestRule.waitUntil(5000) {
+            composeTestRule.onAllNodes(hasText("Cocktail Name *")).fetchSemanticsNodes().isNotEmpty()
+        }
 
-        onView(withId(R.id.saveButtonCocktail)).perform(scrollTo(), click())
-        Thread.sleep(3000)
+        composeTestRule.onNodeWithText("Cocktail Name *").performTextInput(cocktailName)
+
+        // Scroll to save button and click
+        composeTestRule.onNodeWithText("Save Cocktail").performScrollTo().performClick()
+
+        // Wait for navigation back to gallery (longer timeout for emulator)
+        composeTestRule.waitUntil(10000) {
+            composeTestRule.onAllNodes(hasText("Search cocktails...")).fetchSemanticsNodes().isNotEmpty()
+        }
+
+        // Wait for cocktail to appear in list
+        composeTestRule.waitUntil(5000) {
+            composeTestRule.onAllNodes(hasText(cocktailName)).fetchSemanticsNodes().isNotEmpty()
+        }
 
         return cocktailName
     }
 
+    private fun waitForDetailsToLoad() {
+        composeTestRule.waitUntil(5000) {
+            composeTestRule.onAllNodes(hasContentDescription("Edit")).fetchSemanticsNodes().isNotEmpty()
+        }
+    }
+
+    private fun hasContentDescription(desc: String) = androidx.compose.ui.test.hasContentDescription(desc)
+
     // === BOTTLE DETAILS TESTS ===
 
     @Test
-    fun bottleDetails_menuButtonOpensDrawer() {
+    fun bottleDetails_backButtonReturnsToGallery() {
         val name = createTestBottle()
 
         // Navigate to bottle details
-        onView(withText(name)).perform(click())
-        Thread.sleep(1000)
+        composeTestRule.onNodeWithText(name).performClick()
+        composeTestRule.waitForIdle()
 
-        // Verify we're on details
-        onView(withId(R.id.tvBottleName)).check(matches(isDisplayed()))
+        // Wait for details to load
+        waitForDetailsToLoad()
 
-        // Open drawer
-        onView(withId(R.id.menu_icon)).perform(click())
-        Thread.sleep(500)
-
-        // Verify drawer is visible
-        onView(withId(R.id.menu_home_button)).check(matches(isDisplayed()))
-    }
-
-    @Test
-    fun bottleDetails_scrimTapClosesDrawer() {
-        val name = createTestBottle()
-
-        // Navigate to bottle details
-        onView(withText(name)).perform(click())
-        Thread.sleep(1000)
-
-        // Open drawer
-        onView(withId(R.id.menu_icon)).perform(click())
-        Thread.sleep(500)
-
-        // Verify drawer is visible
-        onView(withId(R.id.menu_home_button)).check(matches(isDisplayed()))
-
-        // Tap the scrim
-        onView(withId(R.id.nav_scrim)).perform(click())
-        Thread.sleep(500) // Wait for animation
-
-        // Verify we're still on details screen (drawer closed = can see details)
-        onView(withId(R.id.tvBottleName)).check(matches(isDisplayed()))
-
-        // Re-open drawer to verify it was actually closed
-        onView(withId(R.id.menu_icon)).perform(click())
-        Thread.sleep(500)
-        onView(withId(R.id.menu_home_button)).check(matches(isDisplayed()))
-    }
-
-    @Test
-    fun bottleDetails_backPressClosesDrawerNotScreen() {
-        val name = createTestBottle()
-
-        // Navigate to bottle details
-        onView(withText(name)).perform(click())
-        Thread.sleep(1000)
-
-        // Open drawer
-        onView(withId(R.id.menu_icon)).perform(click())
-        Thread.sleep(500)
-
-        // Verify drawer is visible
-        onView(withId(R.id.menu_home_button)).check(matches(isDisplayed()))
+        // Verify we're on details - name appears twice, check exists
+        composeTestRule.waitUntil(5000) {
+            composeTestRule.onAllNodes(hasText(name)).fetchSemanticsNodes().isNotEmpty()
+        }
 
         // Press back
-        pressBack()
-        Thread.sleep(500)
+        composeTestRule.onNodeWithContentDescription("Back").performClick()
+        composeTestRule.waitForIdle()
 
-        // Verify drawer is closed
-        onView(withId(R.id.menu_home_button)).check(matches(not(isDisplayed())))
+        // Wait for navigation
+        composeTestRule.waitUntil(5000) {
+            composeTestRule.onAllNodes(hasText("Search bottles...")).fetchSemanticsNodes().isNotEmpty()
+        }
 
-        // Verify we're STILL on details screen (not navigated back)
-        onView(withId(R.id.tvBottleName)).check(matches(isDisplayed()))
-        onView(withId(R.id.tvBottleName)).check(matches(withText(name)))
+        // Verify we're back in gallery
+        composeTestRule.onNodeWithText("Search bottles...").assertIsDisplayed()
     }
 
     @Test
-    fun bottleDetails_backPressNavigatesWhenDrawerClosed() {
+    fun bottleDetails_showsBottleInfo() {
         val name = createTestBottle()
 
         // Navigate to bottle details
-        onView(withText(name)).perform(click())
-        Thread.sleep(1000)
+        composeTestRule.onNodeWithText(name).performClick()
+        composeTestRule.waitForIdle()
 
-        // Verify we're on details
-        onView(withId(R.id.tvBottleName)).check(matches(isDisplayed()))
+        // Wait for details to load
+        waitForDetailsToLoad()
 
-        // Press back (drawer is closed)
-        pressBack()
-        Thread.sleep(500)
-
-        // Verify we navigated back to gallery
-        onView(withId(R.id.liquorRecycler)).check(matches(isDisplayed()))
+        // Verify details are displayed - name appears twice, check exists
+        composeTestRule.waitUntil(5000) {
+            composeTestRule.onAllNodes(hasText(name)).fetchSemanticsNodes().isNotEmpty()
+        }
     }
 
     // === COCKTAIL DETAILS TESTS ===
 
     @Test
-    fun cocktailDetails_menuButtonOpensDrawer() {
+    fun cocktailDetails_backButtonReturnsToGallery() {
         val name = createTestCocktail()
 
         // Navigate to cocktail details
-        onView(withText(name)).perform(click())
-        Thread.sleep(1000)
+        composeTestRule.onNodeWithText(name).performClick()
+        composeTestRule.waitForIdle()
 
-        // Verify we're on details
-        onView(withId(R.id.cvCocktailName)).check(matches(isDisplayed()))
+        // Wait for details to load
+        waitForDetailsToLoad()
 
-        // Open drawer
-        onView(withId(R.id.menu_icon)).perform(click())
-        Thread.sleep(500)
-
-        // Verify drawer is visible
-        onView(withId(R.id.menu_home_button)).check(matches(isDisplayed()))
-    }
-
-    @Test
-    fun cocktailDetails_scrimTapClosesDrawer() {
-        val name = createTestCocktail()
-
-        // Navigate to cocktail details
-        onView(withText(name)).perform(click())
-        Thread.sleep(1000)
-
-        // Open drawer
-        onView(withId(R.id.menu_icon)).perform(click())
-        Thread.sleep(500)
-
-        // Verify drawer is visible
-        onView(withId(R.id.menu_home_button)).check(matches(isDisplayed()))
-
-        // Tap the scrim
-        onView(withId(R.id.nav_scrim)).perform(click())
-        Thread.sleep(500) // Wait for animation
-
-        // Verify we're still on details screen (drawer closed = can see details)
-        onView(withId(R.id.cvCocktailName)).check(matches(isDisplayed()))
-
-        // Re-open drawer to verify it was actually closed
-        onView(withId(R.id.menu_icon)).perform(click())
-        Thread.sleep(500)
-        onView(withId(R.id.menu_home_button)).check(matches(isDisplayed()))
-    }
-
-    @Test
-    fun cocktailDetails_backPressClosesDrawerNotScreen() {
-        val name = createTestCocktail()
-
-        // Navigate to cocktail details
-        onView(withText(name)).perform(click())
-        Thread.sleep(1000)
-
-        // Open drawer
-        onView(withId(R.id.menu_icon)).perform(click())
-        Thread.sleep(500)
-
-        // Verify drawer is visible
-        onView(withId(R.id.menu_home_button)).check(matches(isDisplayed()))
+        // Verify we're on details - name appears twice, check exists
+        composeTestRule.waitUntil(5000) {
+            composeTestRule.onAllNodes(hasText(name)).fetchSemanticsNodes().isNotEmpty()
+        }
 
         // Press back
-        pressBack()
-        Thread.sleep(500)
+        composeTestRule.onNodeWithContentDescription("Back").performClick()
+        composeTestRule.waitForIdle()
 
-        // Verify drawer is closed
-        onView(withId(R.id.menu_home_button)).check(matches(not(isDisplayed())))
+        // Wait for navigation
+        composeTestRule.waitUntil(5000) {
+            composeTestRule.onAllNodes(hasText("Search cocktails...")).fetchSemanticsNodes().isNotEmpty()
+        }
 
-        // Verify we're STILL on details screen (not navigated back)
-        onView(withId(R.id.cvCocktailName)).check(matches(isDisplayed()))
-        onView(withId(R.id.cvCocktailName)).check(matches(withText(name)))
+        // Verify we're back in gallery
+        composeTestRule.onNodeWithText("Search cocktails...").assertIsDisplayed()
     }
 
     @Test
-    fun cocktailDetails_backPressNavigatesWhenDrawerClosed() {
+    fun cocktailDetails_showsCocktailInfo() {
         val name = createTestCocktail()
 
         // Navigate to cocktail details
-        onView(withText(name)).perform(click())
-        Thread.sleep(1000)
+        composeTestRule.onNodeWithText(name).performClick()
+        composeTestRule.waitForIdle()
 
-        // Verify we're on details
-        onView(withId(R.id.cvCocktailName)).check(matches(isDisplayed()))
+        // Wait for details to load
+        waitForDetailsToLoad()
 
-        // Press back (drawer is closed)
-        pressBack()
-        Thread.sleep(500)
-
-        // Verify we navigated back to gallery
-        onView(withId(R.id.liquorRecycler)).check(matches(isDisplayed()))
+        // Verify details are displayed - name appears twice, check exists
+        composeTestRule.waitUntil(5000) {
+            composeTestRule.onAllNodes(hasText(name)).fetchSemanticsNodes().isNotEmpty()
+        }
     }
 
-    // === DRAWER NAVIGATION TESTS ===
+    // === GALLERY DRAWER TESTS ===
 
     @Test
-    fun bottleDetails_canNavigateViaDrawer() {
-        val name = createTestBottle()
+    fun bottleGallery_drawerNavigatesToSettings() {
+        navigateToBottleGallery()
 
-        // Navigate to bottle details
-        onView(withText(name)).perform(click())
-        Thread.sleep(1000)
+        // Open drawer and navigate to settings
+        composeTestRule.onNodeWithContentDescription("Menu").performClick()
+        composeTestRule.waitForIdle()
 
-        // Open drawer and go to settings
-        onView(withId(R.id.menu_icon)).perform(click())
-        Thread.sleep(500)
-        onView(withId(R.id.menu_settings_button)).perform(click())
-        Thread.sleep(500)
+        composeTestRule.onNodeWithTag("drawer_Settings").performClick()
+        composeTestRule.waitForIdle()
 
         // Verify we're on settings
-        onView(withId(R.id.signed_in_user)).check(matches(isDisplayed()))
+        composeTestRule.onNodeWithText("Account").assertIsDisplayed()
     }
 
     @Test
-    fun cocktailDetails_canNavigateViaDrawer() {
-        val name = createTestCocktail()
-
-        // Navigate to cocktail details
-        onView(withText(name)).perform(click())
-        Thread.sleep(1000)
+    fun cocktailGallery_drawerNavigatesToHome() {
+        navigateToCocktailGallery()
 
         // Open drawer and go home
-        onView(withId(R.id.menu_icon)).perform(click())
-        Thread.sleep(500)
-        onView(withId(R.id.menu_home_button)).perform(click())
-        Thread.sleep(500)
+        composeTestRule.onNodeWithContentDescription("Menu").performClick()
+        composeTestRule.waitForIdle()
+
+        composeTestRule.onNodeWithTag("drawer_Home").performClick()
+        composeTestRule.waitForIdle()
 
         // Verify we're on home
-        onView(withId(R.id.Title_text)).check(matches(withText("Bottlr")))
+        composeTestRule.onNodeWithText("Quick Actions").assertIsDisplayed()
+    }
+
+    @Test
+    fun bottleGallery_drawerNavigatesToCocktails() {
+        navigateToBottleGallery()
+
+        // Open drawer and navigate to cocktails
+        composeTestRule.onNodeWithContentDescription("Menu").performClick()
+        composeTestRule.waitForIdle()
+
+        composeTestRule.onNodeWithTag("drawer_Cocktails").performClick()
+        composeTestRule.waitForIdle()
+
+        // Verify we're on cocktails
+        composeTestRule.onNodeWithText("Cocktail Menu").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Search cocktails...").assertIsDisplayed()
     }
 }

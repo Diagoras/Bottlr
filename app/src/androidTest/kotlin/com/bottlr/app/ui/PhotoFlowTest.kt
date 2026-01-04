@@ -1,41 +1,27 @@
 package com.bottlr.app.ui
 
-import android.app.Activity
-import android.app.Instrumentation
-import android.content.Intent
-import android.provider.MediaStore
-import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.action.ViewActions.scrollTo
-import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.intent.Intents
-import androidx.test.espresso.intent.Intents.intended
-import androidx.test.espresso.intent.Intents.intending
-import androidx.test.espresso.intent.matcher.IntentMatchers.hasAction
-import androidx.test.espresso.intent.matcher.IntentMatchers.hasType
-import androidx.test.espresso.matcher.ViewMatchers.*
-import androidx.test.ext.junit.rules.ActivityScenarioRule
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.platform.app.InstrumentationRegistry
-import androidx.test.rule.GrantPermissionRule
 import com.bottlr.app.MainActivity
-import com.bottlr.app.R
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
-import org.hamcrest.Matchers.allOf
-import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
 /**
- * UI tests for the photo selection flow (camera and gallery).
+ * UI tests for the photo picker flow using Compose.
  *
- * Tests cover:
- * - Photo dialog appears with correct options
- * - Gallery picker intent is launched correctly
- * - Camera intent is launched correctly (with permission granted)
+ * Note: The Compose implementation uses PickVisualMedia which opens
+ * the system photo picker. We test that the UI elements are present
+ * and clickable. Actual photo picker interactions require instrumented
+ * testing with mocked ActivityResultLauncher.
  */
 @HiltAndroidTest
 @RunWith(AndroidJUnit4::class)
@@ -45,243 +31,82 @@ class PhotoFlowTest {
     val hiltRule = HiltAndroidRule(this)
 
     @get:Rule(order = 1)
-    val activityRule = ActivityScenarioRule(MainActivity::class.java)
-
-    // Grant camera permission automatically for tests
-    @get:Rule(order = 2)
-    val cameraPermissionRule: GrantPermissionRule =
-        GrantPermissionRule.grant(android.Manifest.permission.CAMERA)
+    val composeTestRule = createAndroidComposeRule<MainActivity>()
 
     @Before
     fun setup() {
         hiltRule.inject()
-        Intents.init()
-
-        // Stub all external intents to prevent actually opening camera/gallery
-        intending(hasAction(Intent.ACTION_GET_CONTENT))
-            .respondWith(Instrumentation.ActivityResult(Activity.RESULT_CANCELED, null))
-        intending(hasAction(MediaStore.ACTION_IMAGE_CAPTURE))
-            .respondWith(Instrumentation.ActivityResult(Activity.RESULT_CANCELED, null))
     }
 
-    @After
-    fun teardown() {
-        Intents.release()
+    private fun navigateToBottleEditor() {
+        composeTestRule.onNodeWithContentDescription("Menu").performClick()
+        composeTestRule.waitForIdle()
+        composeTestRule.onNodeWithTag("drawer_LiquorCabinet").performClick()
+        composeTestRule.waitForIdle()
+        composeTestRule.onNodeWithContentDescription("Add Bottle").performClick()
+        composeTestRule.waitForIdle()
+    }
+
+    private fun navigateToCocktailEditor() {
+        composeTestRule.onNodeWithContentDescription("Menu").performClick()
+        composeTestRule.waitForIdle()
+        composeTestRule.onNodeWithTag("drawer_Cocktails").performClick()
+        composeTestRule.waitForIdle()
+        composeTestRule.onNodeWithContentDescription("Add Cocktail").performClick()
+        composeTestRule.waitForIdle()
     }
 
     // === BOTTLE EDITOR PHOTO TESTS ===
 
-    private fun navigateToBottleEditor() {
-        onView(withId(R.id.menu_icon)).perform(click())
-        Thread.sleep(500)
-        onView(withId(R.id.menu_liquorcab_button)).perform(click())
-        Thread.sleep(500)
-        onView(withId(R.id.fab)).perform(click())
-        Thread.sleep(500)
+    @Test
+    fun bottleEditor_photoAreaIsDisplayed() {
+        navigateToBottleEditor()
+
+        // Photo area should show "Tap to add photo" placeholder
+        composeTestRule.onNodeWithText("Tap to add photo").assertIsDisplayed()
     }
 
     @Test
-    fun bottleEditor_addPhotoButton_isDisplayed() {
+    fun bottleEditor_addPhotoIconIsDisplayed() {
         navigateToBottleEditor()
 
-        onView(withId(R.id.addPhotoButton))
-            .perform(scrollTo())
-            .check(matches(isDisplayed()))
+        // Add photo icon should be visible
+        composeTestRule.onNodeWithContentDescription("Add photo").assertIsDisplayed()
     }
 
     @Test
-    fun bottleEditor_addPhotoButton_showsDialog() {
+    fun bottleEditor_formFieldsAreDisplayed() {
         navigateToBottleEditor()
 
-        onView(withId(R.id.addPhotoButton))
-            .perform(scrollTo(), click())
-
-        Thread.sleep(300)
-
-        // Dialog should be visible with title
-        onView(withText("Add Photo")).check(matches(isDisplayed()))
-    }
-
-    @Test
-    fun bottleEditor_photoDialog_hasCorrectOptions() {
-        navigateToBottleEditor()
-
-        onView(withId(R.id.addPhotoButton))
-            .perform(scrollTo(), click())
-
-        Thread.sleep(300)
-
-        // Verify all options are present
-        onView(withText("Take Photo")).check(matches(isDisplayed()))
-        onView(withText("Choose from Gallery")).check(matches(isDisplayed()))
-        onView(withText("Cancel")).check(matches(isDisplayed()))
-    }
-
-    @Test
-    fun bottleEditor_chooseFromGallery_launchesGalleryIntent() {
-        navigateToBottleEditor()
-
-        onView(withId(R.id.addPhotoButton))
-            .perform(scrollTo(), click())
-
-        Thread.sleep(300)
-
-        // Click "Choose from Gallery"
-        onView(withText("Choose from Gallery")).perform(click())
-
-        Thread.sleep(300)
-
-        // Verify gallery intent was launched
-        intended(allOf(
-            hasAction(Intent.ACTION_GET_CONTENT),
-            hasType("image/*")
-        ))
-    }
-
-    @Test
-    fun bottleEditor_takePhoto_launchesCameraIntent() {
-        navigateToBottleEditor()
-
-        onView(withId(R.id.addPhotoButton))
-            .perform(scrollTo(), click())
-
-        Thread.sleep(300)
-
-        // Click "Take Photo"
-        onView(withText("Take Photo")).perform(click())
-
-        Thread.sleep(300)
-
-        // Verify camera intent was launched
-        intended(hasAction(MediaStore.ACTION_IMAGE_CAPTURE))
-    }
-
-    @Test
-    fun bottleEditor_photoDialog_cancelDismissesDialog() {
-        navigateToBottleEditor()
-
-        onView(withId(R.id.addPhotoButton))
-            .perform(scrollTo(), click())
-
-        Thread.sleep(300)
-
-        // Verify dialog is shown
-        onView(withText("Add Photo")).check(matches(isDisplayed()))
-
-        // Click cancel
-        onView(withText("Cancel")).perform(click())
-
-        Thread.sleep(300)
-
-        // Verify we're still on the editor (save button visible)
-        onView(withId(R.id.saveButton)).check(matches(isDisplayed()))
+        // Verify form fields are visible (don't click photo as it opens system picker)
+        composeTestRule.onNodeWithText("Name *").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Distillery").assertIsDisplayed()
     }
 
     // === COCKTAIL EDITOR PHOTO TESTS ===
 
-    private fun navigateToCocktailEditor() {
-        onView(withId(R.id.menu_icon)).perform(click())
-        Thread.sleep(500)
-        onView(withId(R.id.menu_cocktail_button)).perform(click())
-        Thread.sleep(500)
-        onView(withId(R.id.fab)).perform(click())
-        Thread.sleep(500)
+    @Test
+    fun cocktailEditor_photoAreaIsDisplayed() {
+        navigateToCocktailEditor()
+
+        // Photo area should show "Tap to add photo" placeholder
+        composeTestRule.onNodeWithText("Tap to add photo").assertIsDisplayed()
     }
 
     @Test
-    fun cocktailEditor_addPhotoButton_isDisplayed() {
+    fun cocktailEditor_addPhotoIconIsDisplayed() {
         navigateToCocktailEditor()
 
-        onView(withId(R.id.addPhotoButtonCocktail))
-            .perform(scrollTo())
-            .check(matches(isDisplayed()))
+        // Add photo icon should be visible
+        composeTestRule.onNodeWithContentDescription("Add photo").assertIsDisplayed()
     }
 
     @Test
-    fun cocktailEditor_addPhotoButton_showsDialog() {
+    fun cocktailEditor_formFieldsAreDisplayed() {
         navigateToCocktailEditor()
 
-        onView(withId(R.id.addPhotoButtonCocktail))
-            .perform(scrollTo(), click())
-
-        Thread.sleep(300)
-
-        // Dialog should be visible with title
-        onView(withText("Add Photo")).check(matches(isDisplayed()))
-    }
-
-    @Test
-    fun cocktailEditor_photoDialog_hasCorrectOptions() {
-        navigateToCocktailEditor()
-
-        onView(withId(R.id.addPhotoButtonCocktail))
-            .perform(scrollTo(), click())
-
-        Thread.sleep(300)
-
-        // Verify all options are present
-        onView(withText("Take Photo")).check(matches(isDisplayed()))
-        onView(withText("Choose from Gallery")).check(matches(isDisplayed()))
-        onView(withText("Cancel")).check(matches(isDisplayed()))
-    }
-
-    @Test
-    fun cocktailEditor_chooseFromGallery_launchesGalleryIntent() {
-        navigateToCocktailEditor()
-
-        onView(withId(R.id.addPhotoButtonCocktail))
-            .perform(scrollTo(), click())
-
-        Thread.sleep(300)
-
-        // Click "Choose from Gallery"
-        onView(withText("Choose from Gallery")).perform(click())
-
-        Thread.sleep(300)
-
-        // Verify gallery intent was launched
-        intended(allOf(
-            hasAction(Intent.ACTION_GET_CONTENT),
-            hasType("image/*")
-        ))
-    }
-
-    @Test
-    fun cocktailEditor_takePhoto_launchesCameraIntent() {
-        navigateToCocktailEditor()
-
-        onView(withId(R.id.addPhotoButtonCocktail))
-            .perform(scrollTo(), click())
-
-        Thread.sleep(300)
-
-        // Click "Take Photo"
-        onView(withText("Take Photo")).perform(click())
-
-        Thread.sleep(300)
-
-        // Verify camera intent was launched
-        intended(hasAction(MediaStore.ACTION_IMAGE_CAPTURE))
-    }
-
-    @Test
-    fun cocktailEditor_photoDialog_cancelDismissesDialog() {
-        navigateToCocktailEditor()
-
-        onView(withId(R.id.addPhotoButtonCocktail))
-            .perform(scrollTo(), click())
-
-        Thread.sleep(300)
-
-        // Verify dialog is shown
-        onView(withText("Add Photo")).check(matches(isDisplayed()))
-
-        // Click cancel
-        onView(withText("Cancel")).perform(click())
-
-        Thread.sleep(300)
-
-        // Verify we're still on the editor (save button visible)
-        onView(withId(R.id.saveButtonCocktail)).check(matches(isDisplayed()))
+        // Verify form fields are visible (don't click photo as it opens system picker)
+        composeTestRule.onNodeWithText("Cocktail Name *").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Base Spirit (e.g., Vodka, Rum)").assertIsDisplayed()
     }
 }

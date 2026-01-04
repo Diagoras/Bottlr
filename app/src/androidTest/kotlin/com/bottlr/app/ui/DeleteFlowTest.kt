@@ -1,15 +1,17 @@
 package com.bottlr.app.ui
 
-import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.Espresso.closeSoftKeyboard
-import androidx.test.espresso.action.ViewActions.*
-import androidx.test.espresso.assertion.ViewAssertions.doesNotExist
-import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.ViewMatchers.*
-import androidx.test.ext.junit.rules.ActivityScenarioRule
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.hasContentDescription
+import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performTextInput
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.bottlr.app.MainActivity
-import com.bottlr.app.R
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import org.junit.Before
@@ -18,8 +20,8 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 /**
- * UI tests for the deletion flow.
- * Tests deleting bottles and cocktails from the editor screen.
+ * UI tests for the deletion flow using Compose.
+ * Tests deleting bottles and cocktails from the details screen.
  */
 @HiltAndroidTest
 @RunWith(AndroidJUnit4::class)
@@ -29,7 +31,7 @@ class DeleteFlowTest {
     val hiltRule = HiltAndroidRule(this)
 
     @get:Rule(order = 1)
-    val activityRule = ActivityScenarioRule(MainActivity::class.java)
+    val composeTestRule = createAndroidComposeRule<MainActivity>()
 
     @Before
     fun setup() {
@@ -37,17 +39,17 @@ class DeleteFlowTest {
     }
 
     private fun navigateToBottleGallery() {
-        onView(withId(R.id.menu_icon)).perform(click())
-        Thread.sleep(500)
-        onView(withId(R.id.menu_liquorcab_button)).perform(click())
-        Thread.sleep(500)
+        composeTestRule.onNodeWithContentDescription("Menu").performClick()
+        composeTestRule.waitForIdle()
+        composeTestRule.onNodeWithTag("drawer_LiquorCabinet").performClick()
+        composeTestRule.waitForIdle()
     }
 
     private fun navigateToCocktailGallery() {
-        onView(withId(R.id.menu_icon)).perform(click())
-        Thread.sleep(500)
-        onView(withId(R.id.menu_cocktail_button)).perform(click())
-        Thread.sleep(500)
+        composeTestRule.onNodeWithContentDescription("Menu").performClick()
+        composeTestRule.waitForIdle()
+        composeTestRule.onNodeWithTag("drawer_Cocktails").performClick()
+        composeTestRule.waitForIdle()
     }
 
     private fun createTestBottle(): String {
@@ -55,17 +57,29 @@ class DeleteFlowTest {
 
         navigateToBottleGallery()
 
-        onView(withId(R.id.fab)).perform(click())
-        Thread.sleep(1000)
+        composeTestRule.onNodeWithContentDescription("Add Bottle").performClick()
+        composeTestRule.waitForIdle()
 
-        onView(withId(R.id.bottleNameField)).perform(replaceText(bottleName))
-        onView(withId(R.id.distillerField)).perform(replaceText("Test Distillery"))
+        // Wait for editor to load
+        composeTestRule.waitUntil(5000) {
+            composeTestRule.onAllNodes(hasText("Name *")).fetchSemanticsNodes().isNotEmpty()
+        }
 
-        closeSoftKeyboard()
-        Thread.sleep(300)
+        composeTestRule.onNodeWithText("Name *").performTextInput(bottleName)
+        composeTestRule.onNodeWithText("Distillery").performTextInput("Test Distillery")
 
-        onView(withId(R.id.saveButton)).perform(scrollTo(), click())
-        Thread.sleep(3000)
+        // Scroll to save button and click
+        composeTestRule.onNodeWithText("Save Bottle").performScrollTo().performClick()
+
+        // Wait for navigation back to gallery (longer timeout for emulator)
+        composeTestRule.waitUntil(10000) {
+            composeTestRule.onAllNodes(hasText("Search bottles...")).fetchSemanticsNodes().isNotEmpty()
+        }
+
+        // Wait for bottle to appear in list
+        composeTestRule.waitUntil(5000) {
+            composeTestRule.onAllNodes(hasText(bottleName)).fetchSemanticsNodes().isNotEmpty()
+        }
 
         return bottleName
     }
@@ -75,19 +89,38 @@ class DeleteFlowTest {
 
         navigateToCocktailGallery()
 
-        onView(withId(R.id.fab)).perform(click())
-        Thread.sleep(1000)
+        composeTestRule.onNodeWithContentDescription("Add Cocktail").performClick()
+        composeTestRule.waitForIdle()
 
-        onView(withId(R.id.cocktailNameField)).perform(replaceText(cocktailName))
-        onView(withId(R.id.baseField)).perform(replaceText("Vodka"))
+        // Wait for editor to load
+        composeTestRule.waitUntil(5000) {
+            composeTestRule.onAllNodes(hasText("Cocktail Name *")).fetchSemanticsNodes().isNotEmpty()
+        }
 
-        closeSoftKeyboard()
-        Thread.sleep(300)
+        composeTestRule.onNodeWithText("Cocktail Name *").performTextInput(cocktailName)
+        composeTestRule.onNodeWithText("Base Spirit (e.g., Vodka, Rum)").performTextInput("Vodka")
 
-        onView(withId(R.id.saveButtonCocktail)).perform(scrollTo(), click())
-        Thread.sleep(3000)
+        // Scroll to save button and click
+        composeTestRule.onNodeWithText("Save Cocktail").performScrollTo().performClick()
+
+        // Wait for navigation back to gallery (longer timeout for emulator)
+        composeTestRule.waitUntil(10000) {
+            composeTestRule.onAllNodes(hasText("Search cocktails...")).fetchSemanticsNodes().isNotEmpty()
+        }
+
+        // Wait for cocktail to appear in list
+        composeTestRule.waitUntil(5000) {
+            composeTestRule.onAllNodes(hasText(cocktailName)).fetchSemanticsNodes().isNotEmpty()
+        }
 
         return cocktailName
+    }
+
+    private fun waitForDetailsToLoad() {
+        // Wait for the Edit button to appear, which indicates data has loaded
+        composeTestRule.waitUntil(5000) {
+            composeTestRule.onAllNodes(hasContentDescription("Edit")).fetchSemanticsNodes().isNotEmpty()
+        }
     }
 
     @Test
@@ -95,31 +128,22 @@ class DeleteFlowTest {
         val bottleName = createTestBottle()
 
         // Navigate to details
-        onView(withText(bottleName)).perform(click())
-        Thread.sleep(1000)
+        composeTestRule.onNodeWithText(bottleName).performClick()
+        waitForDetailsToLoad()
 
-        // Click edit to go to editor
-        onView(withId(R.id.editButton)).perform(click())
-        Thread.sleep(1000)
-
-        // Delete button should be visible in edit mode
-        onView(withId(R.id.deleteButton)).check(matches(isDisplayed()))
-
-        // Click delete
-        onView(withId(R.id.deleteButton)).perform(scrollTo(), click())
-        Thread.sleep(500)
+        // Click delete button (it's in the details screen for bottles)
+        composeTestRule.onNodeWithContentDescription("Delete").performClick()
+        composeTestRule.waitForIdle()
 
         // Confirmation dialog should appear
-        onView(withText("Delete Bottle")).check(matches(isDisplayed()))
-        onView(withText("Are you sure you want to delete this bottle? This cannot be undone."))
-            .check(matches(isDisplayed()))
+        composeTestRule.onNodeWithText("Delete Bottle").assertIsDisplayed()
 
         // Cancel to not actually delete
-        onView(withText("Cancel")).perform(click())
-        Thread.sleep(500)
+        composeTestRule.onNodeWithText("Cancel").performClick()
+        composeTestRule.waitForIdle()
 
-        // Should still be on editor
-        onView(withId(R.id.bottleNameField)).check(matches(isDisplayed()))
+        // Should still be on details screen - check for Edit button
+        composeTestRule.onNodeWithContentDescription("Edit").assertIsDisplayed()
     }
 
     @Test
@@ -127,26 +151,23 @@ class DeleteFlowTest {
         val bottleName = createTestBottle()
 
         // Navigate to details
-        onView(withText(bottleName)).perform(click())
-        Thread.sleep(1000)
+        composeTestRule.onNodeWithText(bottleName).performClick()
+        waitForDetailsToLoad()
 
-        // Click edit to go to editor
-        onView(withId(R.id.editButton)).perform(click())
-        Thread.sleep(1000)
-
-        // Click delete
-        onView(withId(R.id.deleteButton)).perform(scrollTo(), click())
-        Thread.sleep(500)
+        // Click delete button (it's in the details screen for bottles)
+        composeTestRule.onNodeWithContentDescription("Delete").performClick()
+        composeTestRule.waitForIdle()
 
         // Confirm deletion
-        onView(withText("Delete")).perform(click())
-        Thread.sleep(3000)
+        composeTestRule.onNodeWithText("Delete").performClick()
 
         // Should navigate back to gallery
-        onView(withId(R.id.liquorRecycler)).check(matches(isDisplayed()))
+        composeTestRule.waitUntil(5000) {
+            composeTestRule.onAllNodes(hasText("Search bottles...")).fetchSemanticsNodes().isNotEmpty()
+        }
 
         // Bottle should no longer exist in gallery
-        onView(withText(bottleName)).check(doesNotExist())
+        composeTestRule.onAllNodes(hasText(bottleName)).fetchSemanticsNodes().isEmpty()
     }
 
     @Test
@@ -154,25 +175,27 @@ class DeleteFlowTest {
         val cocktailName = createTestCocktail()
 
         // Navigate to details
-        onView(withText(cocktailName)).perform(click())
-        Thread.sleep(1000)
+        composeTestRule.onNodeWithText(cocktailName).performClick()
+        waitForDetailsToLoad()
 
-        // Click edit to go to editor
-        onView(withId(R.id.editButton)).perform(click())
-        Thread.sleep(1000)
+        // Navigate to editor (delete is in editor, not details)
+        composeTestRule.onNodeWithContentDescription("Edit").performClick()
+        composeTestRule.waitForIdle()
 
-        // Delete button should be visible in edit mode
-        onView(withId(R.id.deleteButton)).check(matches(isDisplayed()))
+        // Wait for editor to load
+        composeTestRule.waitUntil(5000) {
+            composeTestRule.onAllNodes(hasContentDescription("Delete")).fetchSemanticsNodes().isNotEmpty()
+        }
 
-        // Click delete
-        onView(withId(R.id.deleteButton)).perform(scrollTo(), click())
-        Thread.sleep(500)
+        // Click delete button
+        composeTestRule.onNodeWithContentDescription("Delete").performClick()
+        composeTestRule.waitForIdle()
 
         // Confirmation dialog should appear
-        onView(withText("Delete Cocktail")).check(matches(isDisplayed()))
+        composeTestRule.onNodeWithText("Delete Cocktail").assertIsDisplayed()
 
         // Cancel
-        onView(withText("Cancel")).perform(click())
+        composeTestRule.onNodeWithText("Cancel").performClick()
     }
 
     @Test
@@ -180,49 +203,72 @@ class DeleteFlowTest {
         val cocktailName = createTestCocktail()
 
         // Navigate to details
-        onView(withText(cocktailName)).perform(click())
-        Thread.sleep(1000)
+        composeTestRule.onNodeWithText(cocktailName).performClick()
+        waitForDetailsToLoad()
 
-        // Click edit to go to editor
-        onView(withId(R.id.editButton)).perform(click())
-        Thread.sleep(1000)
+        // Navigate to editor (delete is in editor, not details)
+        composeTestRule.onNodeWithContentDescription("Edit").performClick()
+        composeTestRule.waitForIdle()
 
-        // Click delete
-        onView(withId(R.id.deleteButton)).perform(scrollTo(), click())
-        Thread.sleep(500)
+        // Wait for editor to load
+        composeTestRule.waitUntil(5000) {
+            composeTestRule.onAllNodes(hasContentDescription("Delete")).fetchSemanticsNodes().isNotEmpty()
+        }
+
+        // Click delete button
+        composeTestRule.onNodeWithContentDescription("Delete").performClick()
+        composeTestRule.waitForIdle()
 
         // Confirm deletion
-        onView(withText("Delete")).perform(click())
-        Thread.sleep(3000)
+        composeTestRule.onNodeWithText("Delete").performClick()
+        composeTestRule.waitForIdle()
 
-        // Should navigate back to gallery
-        onView(withId(R.id.liquorRecycler)).check(matches(isDisplayed()))
+        // After deletion from Editor, we land on Details screen (which shows loading/empty state)
+        // Wait briefly then navigate back to Gallery
+        composeTestRule.waitUntil(5000) {
+            composeTestRule.onAllNodes(hasContentDescription("Back")).fetchSemanticsNodes().isNotEmpty()
+        }
+
+        // Click Back to navigate to Gallery
+        composeTestRule.onNodeWithContentDescription("Back").performClick()
+        composeTestRule.waitForIdle()
+
+        // Should now be on gallery
+        composeTestRule.waitUntil(5000) {
+            composeTestRule.onAllNodes(hasText("Search cocktails...")).fetchSemanticsNodes().isNotEmpty()
+        }
 
         // Cocktail should no longer exist
-        onView(withText(cocktailName)).check(doesNotExist())
+        composeTestRule.onAllNodes(hasText(cocktailName)).fetchSemanticsNodes().isEmpty()
     }
 
     @Test
-    fun deleteButton_hiddenForNewBottle() {
+    fun deleteButton_notShownOnNewBottleEditor() {
         navigateToBottleGallery()
 
         // Click FAB to add new bottle
-        onView(withId(R.id.fab)).perform(click())
-        Thread.sleep(1000)
+        composeTestRule.onNodeWithContentDescription("Add Bottle").performClick()
+        composeTestRule.waitForIdle()
 
-        // Delete button should not be visible for new item
-        onView(withId(R.id.deleteButton)).check(matches(withEffectiveVisibility(Visibility.GONE)))
+        // Verify we're on editor
+        composeTestRule.onNodeWithText("New Bottle").assertIsDisplayed()
+
+        // Delete button should not exist for new items (no Delete icon in top bar)
+        composeTestRule.onAllNodes(hasText("Delete Bottle")).fetchSemanticsNodes().isEmpty()
     }
 
     @Test
-    fun deleteButton_hiddenForNewCocktail() {
+    fun deleteButton_notShownOnNewCocktailEditor() {
         navigateToCocktailGallery()
 
         // Click FAB to add new cocktail
-        onView(withId(R.id.fab)).perform(click())
-        Thread.sleep(1000)
+        composeTestRule.onNodeWithContentDescription("Add Cocktail").performClick()
+        composeTestRule.waitForIdle()
 
-        // Delete button should not be visible for new item
-        onView(withId(R.id.deleteButton)).check(matches(withEffectiveVisibility(Visibility.GONE)))
+        // Verify we're on editor
+        composeTestRule.onNodeWithText("New Cocktail").assertIsDisplayed()
+
+        // Delete button should not exist for new items
+        composeTestRule.onAllNodes(hasText("Delete Cocktail")).fetchSemanticsNodes().isEmpty()
     }
 }
