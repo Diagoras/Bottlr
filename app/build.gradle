@@ -5,6 +5,7 @@ plugins {
     id 'com.google.gms.google-services'
     id 'kotlin-kapt'
     id 'com.google.dagger.hilt.android'
+    id 'androidx.room'
 }
 
 // Load signing properties
@@ -22,8 +23,8 @@ android {
         applicationId "com.bottlr.app"
         minSdk 29
         targetSdk 35
-        versionCode 5
-        versionName "0.1.1"
+        versionCode 6
+        versionName "0.1.2"
         testInstrumentationRunner "com.bottlr.app.HiltTestRunner"
     }
     signingConfigs {
@@ -66,6 +67,10 @@ android {
             excludes += ['META-INF/LICENSE.md', 'META-INF/LICENSE-notice.md']
         }
     }
+}
+
+room {
+    schemaDirectory "$projectDir/schemas"
 }
 
 dependencies {
