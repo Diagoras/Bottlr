@@ -72,7 +72,7 @@ class NavigationFlowTest {
         onView(withId(R.id.menu_icon))
             .perform(click())
 
-        // Click Cocktail Maker
+        // Click Cocktail Menu
         onView(withId(R.id.menu_cocktail_button))
             .perform(click())
 

@@ -372,7 +372,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Cocktail Maker"
+                    android:text="Cocktail Menu"
                     android:textColor="?attr/colorOnSurface"
                     android:textSize="16sp"
                     android:layout_marginStart="16dp" />

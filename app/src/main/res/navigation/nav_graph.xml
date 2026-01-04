@@ -43,7 +43,7 @@
     <fragment
         android:id="@+id/cocktailGalleryFragment"
         android:name="com.bottlr.app.ui.gallery.CocktailGalleryFragment"
-        android:label="Cocktail Maker"
+        android:label="Cocktail Menu"
         tools:layout="@layout/fragment_gallery">
         <action
             android:id="@+id/action_cocktails_to_details"

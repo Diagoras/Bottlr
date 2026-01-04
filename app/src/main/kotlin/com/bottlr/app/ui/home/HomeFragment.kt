@@ -22,7 +22,7 @@ import kotlinx.coroutines.launch
  *
  * Shows collection stats and provides quick navigation to:
  * - Liquor Cabinet (Bottle Gallery)
- * - Cocktail Maker (Cocktail Gallery)
+ * - Cocktail Menu (Cocktail Gallery)
  * - Settings
  */
 @AndroidEntryPoint
@@ -63,7 +63,7 @@ class HomeFragment : Fragment() {
             findNavController().navigate(R.id.action_home_to_gallery)
         }
 
-        // Stats card - Cocktail Maker
+        // Stats card - Cocktail Menu
         view.findViewById<MaterialCardView>(R.id.card_cocktails)?.setOnClickListener {
             findNavController().navigate(R.id.action_home_to_cocktails)
         }
