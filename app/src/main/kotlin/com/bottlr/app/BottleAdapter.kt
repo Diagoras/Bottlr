@@ -1,12 +1,13 @@
 package com.bottlr.app
 
 import android.net.Uri
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bottlr.app.data.local.entities.BottleEntity
 import com.bottlr.app.util.toShortDateString
@@ -14,9 +15,8 @@ import com.bumptech.glide.Glide
 import com.google.android.material.card.MaterialCardView
 
 class BottleAdapter(
-    private var bottles: MutableList<BottleEntity> = mutableListOf(),
     private val onBottleClick: (BottleEntity) -> Unit
-) : RecyclerView.Adapter<BottleAdapter.BottleViewHolder>() {
+) : ListAdapter<BottleEntity, BottleAdapter.BottleViewHolder>(BottleDiffCallback()) {
 
     class BottleViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val cardBottle: MaterialCardView = itemView.findViewById(R.id.cardBottle)
@@ -33,7 +33,7 @@ class BottleAdapter(
     }
 
     override fun onBindViewHolder(holder: BottleViewHolder, position: Int) {
-        val bottle = bottles[position]
+        val bottle = getItem(position)
         holder.textName.text = bottle.name
         holder.textDistillery.text = bottle.distillery
         holder.textType.text = bottle.type.ifEmpty { "Spirit" }
@@ -56,12 +56,13 @@ class BottleAdapter(
         }
     }
 
-    override fun getItemCount(): Int = bottles.size
+    private class BottleDiffCallback : DiffUtil.ItemCallback<BottleEntity>() {
+        override fun areItemsTheSame(oldItem: BottleEntity, newItem: BottleEntity): Boolean {
+            return oldItem.id == newItem.id
+        }
 
-    fun updateData(newBottles: List<BottleEntity>) {
-        Log.d("Search", "Updating bottle adapter with ${newBottles.size} items")
-        this.bottles = newBottles.toMutableList()
-        notifyDataSetChanged()
+        override fun areContentsTheSame(oldItem: BottleEntity, newItem: BottleEntity): Boolean {
+            return oldItem == newItem
+        }
     }
-
 }

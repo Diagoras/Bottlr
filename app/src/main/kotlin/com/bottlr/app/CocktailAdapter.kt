@@ -1,12 +1,13 @@
 package com.bottlr.app
 
 import android.net.Uri
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bottlr.app.data.local.entities.CocktailEntity
 import com.bottlr.app.util.toShortDateString
@@ -14,9 +15,8 @@ import com.bumptech.glide.Glide
 import com.google.android.material.card.MaterialCardView
 
 class CocktailAdapter(
-    private var cocktails: MutableList<CocktailEntity> = mutableListOf(),
     private val onCocktailClick: (CocktailEntity) -> Unit
-) : RecyclerView.Adapter<CocktailAdapter.CocktailViewHolder>() {
+) : ListAdapter<CocktailEntity, CocktailAdapter.CocktailViewHolder>(CocktailDiffCallback()) {
 
     class CocktailViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val cardCocktail: MaterialCardView = itemView.findViewById(R.id.cardCocktail)
@@ -33,7 +33,7 @@ class CocktailAdapter(
     }
 
     override fun onBindViewHolder(holder: CocktailViewHolder, position: Int) {
-        val cocktail = cocktails[position]
+        val cocktail = getItem(position)
         holder.textName.text = cocktail.name
         holder.textBase.text = cocktail.base.ifEmpty { "Spirit" }
         holder.textDate.text = cocktail.createdAt.toShortDateString()
@@ -62,12 +62,13 @@ class CocktailAdapter(
         }
     }
 
-    override fun getItemCount(): Int = cocktails.size
+    private class CocktailDiffCallback : DiffUtil.ItemCallback<CocktailEntity>() {
+        override fun areItemsTheSame(oldItem: CocktailEntity, newItem: CocktailEntity): Boolean {
+            return oldItem.id == newItem.id
+        }
 
-    fun updateData(newCocktails: List<CocktailEntity>) {
-        Log.d("Search", "Updating cocktail adapter with ${newCocktails.size} items")
-        this.cocktails = newCocktails.toMutableList()
-        notifyDataSetChanged()
+        override fun areContentsTheSame(oldItem: CocktailEntity, newItem: CocktailEntity): Boolean {
+            return oldItem == newItem
+        }
     }
-
 }

@@ -43,7 +43,7 @@ class CocktailGalleryFragment : Fragment() {
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
 
         // Setup adapter with click listener
-        adapter = CocktailAdapter(mutableListOf()) { cocktail ->
+        adapter = CocktailAdapter { cocktail ->
             findNavController().navigate(
                 R.id.action_cocktails_to_details,
                 bundleOf("cocktailId" to cocktail.id)
@@ -102,7 +102,7 @@ class CocktailGalleryFragment : Fragment() {
         // Observe cocktails from ViewModel
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.cocktails.collectLatest { cocktails ->
-                adapter.updateData(cocktails)
+                adapter.submitList(cocktails)
             }
         }
 

@@ -53,9 +53,6 @@
 
 # ========== App Data Classes ==========
 -keep class com.bottlr.app.data.local.entities.** { *; }
--keep class com.bottlr.app.Bottle { *; }
--keep class com.bottlr.app.Cocktail { *; }
--keep class com.bottlr.app.Location { *; }
 
 # ========== Parcelable ==========
 -keepclassmembers class * implements android.os.Parcelable {
