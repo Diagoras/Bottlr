@@ -5,96 +5,64 @@
     android:id="@+id/homescreen"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="?attr/colorSurface"
     android:fitsSystemWindows="true"
     tools:context=".MainActivity">
 
-    <ImageView
-        android:id="@+id/bggallery"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:scaleX="1.5"
-        android:scaleY="2"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/titleBG"
-        app:srcCompat="@drawable/bg3" />
-
-    <ImageView
-        android:id="@+id/titleBG"
-        android:layout_width="446dp"
-        android:layout_height="81dp"
-        android:scaleX="6"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+    <!-- Top App Bar -->
+    <LinearLayout
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="8dp"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/bg1" />
-
-<TextView
-        android:textIsSelectable="true"
-        android:id="@+id/Title_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Bottlr"
-        android:textColor="@color/black"
-        android:textSize="48sp"
-        android:fontFamily="@font/downhill"
-        android:letterSpacing=".05"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.001" />
+        app:layout_constraintEnd_toEndOf="parent">
 
-    <ImageView
-        android:id="@+id/line_image"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="3dp"
-        android:layout_marginTop="-20dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/Title_text"
-        app:layout_constraintVertical_bias="0.0"
-        app:srcCompat="@drawable/line" />
+        <ImageButton
+            android:id="@+id/menu_icon"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/menu_icon"
+            android:scaleType="centerInside"
+            android:padding="12dp"
+            app:tint="?attr/colorPrimary"
+            android:contentDescription="Menu" />
 
-    <Button
-        android:id="@+id/menu_icon"
-        android:layout_width="80dp"
-        android:layout_height="70dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="2dp"
-        android:layout_marginEnd="253dp"
-        android:background="@color/transparent"
-        android:clickable="true"
-        android:foreground="@drawable/menu_icon"
-        
-        android:scaleX=".8"
-        android:textSize="20sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.0"
-        tools:ignore="SpeakableTextPresentCheck" />
+        <TextView
+            android:id="@+id/Title_text"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Bottlr"
+            android:textColor="?attr/colorOnSurface"
+            android:textSize="24sp"
+            android:fontFamily="@font/downhill"
+            android:gravity="center" />
+
+        <View
+            android:layout_width="48dp"
+            android:layout_height="48dp" />
+
+    </LinearLayout>
 
 
     <Button
         android:id="@+id/backgroundDesc"
         android:layout_width="383dp"
         android:layout_height="519dp"
-        android:backgroundTint="?attr/colorSurface"
+        android:backgroundTint="?attr/colorSurfaceVariant"
         android:elevation="0dp"
         android:clickable="false"
         app:cornerRadius="40dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.452" />
+        app:layout_constraintTop_toBottomOf="@id/toolbar"
+        app:layout_constraintVertical_bias="0.4" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="383dp"
@@ -103,8 +71,8 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.452">
+        app:layout_constraintTop_toBottomOf="@id/toolbar"
+        app:layout_constraintVertical_bias="0.4">
 
         <TextView
             android:id="@+id/cvCocktailName"
@@ -174,7 +142,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="start"
             android:layout_marginEnd="20dp"
-            android:backgroundTint="@color/light_blue"
+            android:backgroundTint="?attr/colorPrimary"
             android:contentDescription="Back"
             android:src="@drawable/baseline_arrow_back_24"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -289,230 +257,203 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.632" />
 
+    <!-- Navigation Drawer -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/nav_window"
-        android:layout_width="420sp"
+        android:layout_width="280dp"
         android:layout_height="match_parent"
+        android:background="?attr/colorSurface"
         android:clickable="true"
-        android:elevation="5dp"
-        android:translationX="-420sp"
+        android:elevation="8dp"
+        android:translationX="-280dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
         <Button
             android:id="@+id/exit_nav_button"
-            android:layout_width="160dp"
-            android:layout_height="751dp"
-            android:layout_marginStart="250dp"
-            android:elevation="-10dp"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
             android:background="@color/transparent"
-            
             android:text=""
+            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <ImageView
-            android:id="@+id/nav_image"
-            android:layout_width="wrap_content"
+        <!-- Nav Header -->
+        <LinearLayout
+            android:id="@+id/nav_header"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="280dp"
-            android:elevation="2dp"
-            android:scaleY="3"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:background="?attr/colorPrimary"
             app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/bg2" />
-
-        <ImageView
-            android:id="@+id/nav_menu_logo"
-            android:elevation="5dp"
-            android:layout_width="104dp"
-            android:layout_height="117dp"
-            android:layout_marginEnd="260dp"
-            android:layout_marginBottom="590dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@mipmap/ic_launcher" />
+            app:layout_constraintEnd_toEndOf="parent">
 
-        <TextView
-            android:id="@+id/bottlrnavtext"
-            android:layout_width="wrap_content"
+            <ImageView
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:src="@mipmap/ic_launcher"
+                android:contentDescription="Bottlr" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Bottlr"
+                android:textColor="?attr/colorOnPrimary"
+                android:textSize="24sp"
+                android:fontFamily="@font/exodemibold"
+                android:layout_marginTop="8dp" />
+
+        </LinearLayout>
+
+        <!-- Nav Menu Items -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:elevation="5dp"
-            android:layout_marginStart="28dp"
-            android:layout_marginEnd="91dp"
-            android:layout_marginBottom="410dp"
-            android:fontFamily="@font/exodemibold"
-            android:text="Menu"
-            android:textSize="40sp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
+            android:orientation="vertical"
+            android:paddingTop="8dp"
+            app:layout_constraintTop_toBottomOf="@id/nav_header"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintEnd_toEndOf="parent">
 
-        <ImageView
-            android:id="@+id/menuDivider"
-            android:elevation="5dp"
-            android:layout_width="200dp"
-            android:layout_height="117dp"
-            android:layout_marginEnd="150dp"
-            android:layout_marginBottom="330dp"
-            android:scaleX="2.5"
-            android:scaleY="3"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/line2" />
+            <LinearLayout
+                android:id="@+id/menu_home_button"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="16dp"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true">
 
-        <Button
-            android:id="@+id/menu_home_button"
-            android:layout_width="214dp"
-            android:layout_height="46dp"
-            android:elevation="5dp"
-            android:layout_marginStart="20dp"
-            android:layout_marginEnd="75dp"
-            android:layout_marginBottom="250dp"
-            android:background="@color/transparent"
-            android:clickable="true"
-            
-            android:paddingEnd="80sp"
-            android:text="Home"
-            android:textSize="16sp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/baseline_home_24"
+                    app:tint="?attr/colorOnSurface"
+                    android:contentDescription="Home" />
 
-        <ImageView
-            android:id="@+id/home_nav_icon"
-            android:layout_width="50dp"
-            android:elevation="5dp"
-            android:layout_height="36dp"
-            android:layout_marginStart="20dp"
-            android:layout_marginBottom="250dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/baseline_home_24" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Home"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textSize="16sp"
+                    android:layout_marginStart="16dp" />
 
-        <Button
-            android:id="@+id/menu_liquorcab_button"
-            android:layout_width="214dp"
-            android:layout_height="46dp"
-            android:elevation="5dp"
-            android:layout_marginStart="20dp"
-            android:layout_marginEnd="75dp"
-            android:layout_marginBottom="150dp"
-            android:background="@color/transparent"
-            android:clickable="true"
-            
-            android:paddingStart="48sp"
-            android:text="Liquor Cabinet"
-            android:textSize="16sp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            </LinearLayout>
 
-        <ImageView
-            android:id="@+id/liquorcab_nav_icon"
-            android:layout_width="50dp"
-            android:layout_height="36dp"
-            android:layout_marginStart="18dp"
-            android:elevation="5dp"
-            android:layout_marginBottom="150dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/ic_menu_gallery" />
+            <LinearLayout
+                android:id="@+id/menu_liquorcab_button"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="16dp"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true">
 
-        <Button
-            android:id="@+id/menu_cocktail_button"
-            android:layout_width="224dp"
-            android:layout_height="46dp"
-            android:layout_marginStart="20dp"
-            android:layout_marginTop="100dp"
-            android:layout_marginEnd="75dp"
-            android:elevation="5dp"
-            android:layout_marginBottom="150dp"
-            android:background="@color/transparent"
-            android:clickable="true"
-            
-            android:paddingStart="43sp"
-            android:text="Cocktail Menu"
-            android:textSize="16sp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_menu_gallery"
+                    app:tint="?attr/colorOnSurface"
+                    android:contentDescription="Bottles" />
 
-        <ImageView
-            android:id="@+id/cocktail_nav_icon"
-            android:layout_width="50dp"
-            android:layout_height="36dp"
-            android:layout_marginStart="18dp"
-            android:layout_marginTop="100dp"
-            android:elevation="5dp"
-            android:layout_marginBottom="150dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/ic_menu_gallery" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Liquor Cabinet"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textSize="16sp"
+                    android:layout_marginStart="16dp" />
 
-        <Button
-            android:id="@+id/menu_settings_button"
-            android:layout_width="214dp"
-            android:layout_height="46dp"
-            android:layout_marginStart="20dp"
-            android:layout_marginTop="200dp"
-            android:layout_marginEnd="75dp"
-            android:layout_marginBottom="-50dp"
-            android:background="@color/transparent"
-            android:elevation="5dp"
-            android:clickable="true"
-            
-            android:paddingEnd="40sp"
-            android:text="Settings"
-            android:textSize="16sp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            </LinearLayout>
 
-        <ImageView
-            android:id="@+id/settings_nav_icon"
-            android:layout_width="50dp"
-            android:layout_height="36dp"
-            android:layout_marginStart="20dp"
-            android:layout_marginTop="200dp"
-            android:layout_marginBottom="-50dp"
-            android:elevation="5dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/settings" />
+            <LinearLayout
+                android:id="@+id/menu_cocktail_button"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="16dp"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_menu_gallery"
+                    app:tint="?attr/colorOnSurface"
+                    android:contentDescription="Cocktails" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Cocktail Menu"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textSize="16sp"
+                    android:layout_marginStart="16dp" />
+
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="?attr/colorOutline"
+                android:layout_marginVertical="8dp" />
+
+            <LinearLayout
+                android:id="@+id/menu_settings_button"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="16dp"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/settings"
+                    app:tint="?attr/colorOnSurface"
+                    android:contentDescription="Settings" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Settings"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textSize="16sp"
+                    android:layout_marginStart="16dp" />
+
+            </LinearLayout>
+
+        </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- Scrim overlay for nav drawer -->
+    <View
+        android:id="@+id/nav_scrim"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#80000000"
+        android:visibility="gone"
+        android:elevation="7dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

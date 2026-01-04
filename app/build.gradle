@@ -67,6 +67,22 @@ android {
             excludes += ['META-INF/LICENSE.md', 'META-INF/LICENSE-notice.md']
         }
     }
+
+    // Only run instrumented tests on emulators, never on physical devices
+    testOptions {
+        execution 'ANDROIDX_TEST_ORCHESTRATOR'
+
+        // Define a managed device for consistent test runs
+        managedDevices {
+            localDevices {
+                pixel6api34 {
+                    device = "Pixel 6"
+                    apiLevel = 34
+                    systemImageSource = "aosp-atd"  // Lighter image, faster tests
+                }
+            }
+        }
+    }
 }
 
 room {
@@ -169,6 +185,9 @@ dependencies {
 
     // Turbine for instrumented tests
     androidTestImplementation "app.cash.turbine:turbine:1.0.0"
+
+    // Test Orchestrator for isolated test runs
+    androidTestUtil "androidx.test:orchestrator:1.5.0"
 }
 
 apply plugin: 'com.google.gms.google-services'
@@ -248,4 +267,43 @@ tasks.register('stopFirebaseEmulators') {
 tasks.matching { it.name == 'connectedDebugAndroidTest' }.configureEach {
     dependsOn startFirebaseEmulators
     finalizedBy stopFirebaseEmulators
+}
+
+// === Instrumented Test Device Configuration ===
+// Option 1: Run on Gradle Managed Device (no emulator needed, fully isolated)
+//   ./gradlew pixel6api34DebugAndroidTest
+//
+// Option 2: Run on specific emulator (must be running)
+//   ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest
+//
+// Option 3: Run on all connected devices (legacy, includes physical devices!)
+//   ./gradlew connectedDebugAndroidTest
+
+// Warn if physical devices are connected during connected tests
+tasks.matching { it.name == 'connectedDebugAndroidTest' }.configureEach {
+    doFirst {
+        if (System.getenv('ANDROID_SERIAL')?.startsWith('emulator-')) {
+            println "Running tests on emulator: ${System.getenv('ANDROID_SERIAL')}"
+            return
+        }
+
+        def adbPath = "${android.sdkDirectory}/platform-tools/adb"
+        def result = "${adbPath} devices".execute()
+        result.waitFor()
+        def devices = result.text
+
+        def physicalDevices = devices.readLines()
+            .findAll { it.contains('device') && !it.contains('emulator-') && !it.startsWith('List') }
+
+        if (!physicalDevices.isEmpty()) {
+            println """
+                |WARNING: Physical device(s) connected - tests will run on them too!
+                |${physicalDevices.collect { "  - $it" }.join('\n')}
+                |
+                |To run only on emulator, use one of:
+                |  ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest
+                |  ./gradlew pixel6api34DebugAndroidTest  (managed device)
+            """.stripMargin()
+        }
+    }
 }

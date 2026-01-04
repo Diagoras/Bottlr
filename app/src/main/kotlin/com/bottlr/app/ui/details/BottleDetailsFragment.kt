@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AlertDialog
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
@@ -75,12 +76,20 @@ class BottleDetailsFragment : Fragment() {
     }
 
     private fun setupNavWindow(view: View) {
-        view.findViewById<View>(R.id.nav_window)?.let {
-            navDrawer = NavDrawerHelper(it, resources = resources)
+        val navWindow = view.findViewById<View>(R.id.nav_window)
+        val navScrim = view.findViewById<View>(R.id.nav_scrim)
+
+        if (navWindow != null) {
+            navDrawer = NavDrawerHelper(navWindow, navScrim, resources)
         }
 
         view.findViewById<View>(R.id.menu_icon)?.setOnClickListener {
             navDrawer?.toggle()
+        }
+
+        // Tapping scrim closes drawer
+        navScrim?.setOnClickListener {
+            navDrawer?.close()
         }
 
         view.findViewById<View>(R.id.exit_nav_button)?.setOnClickListener {
@@ -88,20 +97,39 @@ class BottleDetailsFragment : Fragment() {
         }
 
         view.findViewById<View>(R.id.menu_home_button)?.setOnClickListener {
+            navDrawer?.close()
             findNavController().navigate(R.id.homeFragment)
         }
 
         view.findViewById<View>(R.id.menu_liquorcab_button)?.setOnClickListener {
+            navDrawer?.close()
             findNavController().navigate(R.id.bottleGalleryFragment)
         }
 
         view.findViewById<View>(R.id.menu_cocktail_button)?.setOnClickListener {
+            navDrawer?.close()
             findNavController().navigate(R.id.cocktailGalleryFragment)
         }
 
         view.findViewById<View>(R.id.menu_settings_button)?.setOnClickListener {
+            navDrawer?.close()
             findNavController().navigate(R.id.settingsFragment)
         }
+
+        // Back press closes drawer instead of navigating back
+        requireActivity().onBackPressedDispatcher.addCallback(
+            viewLifecycleOwner,
+            object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    if (navDrawer?.isDrawerOpen == true) {
+                        navDrawer?.close()
+                    } else {
+                        isEnabled = false
+                        requireActivity().onBackPressedDispatcher.onBackPressed()
+                    }
+                }
+            }
+        )
     }
 
     private fun setupObservers() {
