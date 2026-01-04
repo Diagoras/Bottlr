@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION") // GoogleSignIn is deprecated but Credential Manager migration is non-trivial
+
 package com.bottlr.app.ui.settings
 
 import android.content.Context

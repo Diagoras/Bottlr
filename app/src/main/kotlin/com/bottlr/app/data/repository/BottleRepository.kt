@@ -182,14 +182,8 @@ class BottleRepository @Inject constructor(
             doc.reference.delete().await()
         }
 
-        // Also delete photos from storage
-        try {
-            val storageRef = storage.reference.child("users/$userId/bottles")
-            // Note: Firebase Storage doesn't support deleting folders directly,
-            // but the photos will be orphaned and can be cleaned up later
-        } catch (e: Exception) {
-            // Ignore storage errors
-        }
+        // Note: Firebase Storage doesn't support deleting folders directly,
+        // so user photos will be orphaned. Consider a Cloud Function for cleanup.
     }
 
     /**
