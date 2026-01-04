@@ -23,7 +23,6 @@ data class BottleEntity(
     val createdAt: Instant = Instant.now(),
     val updatedAt: Instant = Instant.now(),
 
-    // Firestore sync tracking
-    val firestoreId: String? = null,
-    val firebaseSynced: Boolean = false
+    // Firestore document ID (null if never synced)
+    val firestoreId: String? = null
 )

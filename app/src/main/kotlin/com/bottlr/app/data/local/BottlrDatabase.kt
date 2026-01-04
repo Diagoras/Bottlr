@@ -5,19 +5,16 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.bottlr.app.data.local.dao.BottleDao
 import com.bottlr.app.data.local.dao.CocktailDao
-import com.bottlr.app.data.local.dao.LocationDao
 import com.bottlr.app.data.local.entities.BottleEntity
 import com.bottlr.app.data.local.entities.CocktailEntity
-import com.bottlr.app.data.local.entities.LocationEntity
 
 @Database(
-    entities = [BottleEntity::class, CocktailEntity::class, LocationEntity::class],
-    version = 1,
+    entities = [BottleEntity::class, CocktailEntity::class],
+    version = 2,
     exportSchema = true
 )
 @TypeConverters(Converters::class)
 abstract class BottlrDatabase : RoomDatabase() {
     abstract fun bottleDao(): BottleDao
     abstract fun cocktailDao(): CocktailDao
-    abstract fun locationDao(): LocationDao
 }

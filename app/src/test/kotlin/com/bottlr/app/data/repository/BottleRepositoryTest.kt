@@ -105,10 +105,7 @@ class BottleRepositoryTest {
     @Test
     fun `delete without firestoreId does not call Firestore`() = runTest {
         // Given - bottle not synced to Firestore
-        val bottle = TestFixtures.bottle(id = 1L).copy(
-            firestoreId = null,
-            firebaseSynced = false
-        )
+        val bottle = TestFixtures.bottle(id = 1L, firestoreId = null)
         coEvery { dao.delete(bottle) } just Runs
 
         // When

@@ -21,8 +21,7 @@ object TestFixtures {
         region: String = "Islay",
         keywords: String = "peaty, smoky",
         rating: Float? = 8.5f,
-        firestoreId: String? = null,
-        firebaseSynced: Boolean = false
+        firestoreId: String? = null
     ) = BottleEntity(
         id = id,
         name = name,
@@ -35,8 +34,7 @@ object TestFixtures {
         region = region,
         keywords = keywords,
         rating = rating,
-        firestoreId = firestoreId,
-        firebaseSynced = firebaseSynced
+        firestoreId = firestoreId
     )
 
     fun cocktail(
@@ -52,8 +50,7 @@ object TestFixtures {
         notes: String = "Refreshing",
         keywords: String = "refreshing, simple",
         rating: Float? = 7.0f,
-        firestoreId: String? = null,
-        firebaseSynced: Boolean = false
+        firestoreId: String? = null
     ) = CocktailEntity(
         id = id,
         name = name,
@@ -67,8 +64,7 @@ object TestFixtures {
         notes = notes,
         keywords = keywords,
         rating = rating,
-        firestoreId = firestoreId,
-        firebaseSynced = firebaseSynced
+        firestoreId = firestoreId
     )
 
     // Lists for bulk testing

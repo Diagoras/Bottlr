@@ -12,8 +12,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val bottleRepository: BottleRepository,
-    private val cocktailRepository: CocktailRepository
+    bottleRepository: BottleRepository,
+    cocktailRepository: CocktailRepository
 ) : ViewModel() {
 
     val bottleCount: StateFlow<Int> = bottleRepository.bottleCount

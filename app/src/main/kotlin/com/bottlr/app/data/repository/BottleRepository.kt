@@ -120,8 +120,7 @@ class BottleRepository @Inject constructor(
                 keywords = doc.getString("keywords") ?: "",
                 rating = doc.getDouble("rating")?.toFloat(),
                 updatedAt = doc.getLong("updatedAt")?.let { java.time.Instant.ofEpochMilli(it) } ?: java.time.Instant.now(),
-                firestoreId = doc.id,
-                firebaseSynced = true
+                firestoreId = doc.id
             )
             bottleDao.insert(bottle)
         }
@@ -163,36 +162,5 @@ class BottleRepository @Inject constructor(
             .document(firestoreId)
             .delete()
             .await()
-    }
-
-    /**
-     * Erase all bottles from Firestore for the current user.
-     * Does not delete local data.
-     */
-    suspend fun eraseAllFromFirestore() {
-        val userId = auth.currentUser?.uid ?: return
-
-        val snapshot = firestore.collection("users")
-            .document(userId)
-            .collection("bottles")
-            .get()
-            .await()
-
-        snapshot.documents.forEach { doc ->
-            doc.reference.delete().await()
-        }
-
-        // Note: Firebase Storage doesn't support deleting folders directly,
-        // so user photos will be orphaned. Consider a Cloud Function for cleanup.
-    }
-
-    /**
-     * Erase all bottles from local database.
-     */
-    suspend fun eraseAllLocal() {
-        val bottles = allBottles.first()
-        bottles.forEach { bottle ->
-            bottleDao.delete(bottle)
-        }
     }
 }

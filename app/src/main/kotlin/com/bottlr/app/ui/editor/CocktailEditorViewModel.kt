@@ -14,7 +14,7 @@ import javax.inject.Inject
 @HiltViewModel
 class CocktailEditorViewModel @Inject constructor(
     private val cocktailRepository: CocktailRepository,
-    private val savedStateHandle: SavedStateHandle
+    savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
     private val cocktailId: Long = savedStateHandle.get<Long>("cocktailId") ?: -1L
@@ -27,6 +27,9 @@ class CocktailEditorViewModel @Inject constructor(
 
     private val _saveStatus = MutableStateFlow<SaveStatus>(SaveStatus.Idle)
     val saveStatus: StateFlow<SaveStatus> = _saveStatus.asStateFlow()
+
+    private val _deleteStatus = MutableStateFlow<DeleteStatus>(DeleteStatus.Idle)
+    val deleteStatus: StateFlow<DeleteStatus> = _deleteStatus.asStateFlow()
 
     val isEditMode: Boolean = cocktailId != -1L
 
@@ -94,6 +97,20 @@ class CocktailEditorViewModel @Inject constructor(
                 }
             } catch (e: Exception) {
                 _saveStatus.value = SaveStatus.Error(e.message ?: "Failed to save cocktail")
+            }
+        }
+    }
+
+    fun deleteCocktail() {
+        viewModelScope.launch {
+            try {
+                _deleteStatus.value = DeleteStatus.Deleting
+                _cocktail.value?.let {
+                    cocktailRepository.delete(it)
+                    _deleteStatus.value = DeleteStatus.Success
+                }
+            } catch (e: Exception) {
+                _deleteStatus.value = DeleteStatus.Error(e.message ?: "Failed to delete")
             }
         }
     }

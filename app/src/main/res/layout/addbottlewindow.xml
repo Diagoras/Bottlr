@@ -67,22 +67,6 @@
         app:layout_constraintVertical_bias="0.0"
         tools:ignore="SpeakableTextPresentCheck" />
 
-    <ImageView
-        android:id="@+id/cloud_sync_button_home"
-        android:layout_width="79dp"
-        android:layout_height="64dp"
-        android:layout_marginStart="185dp"
-        android:layout_marginTop="2dp"
-        android:layout_marginEnd="7dp"
-        android:clickable="true"
-        
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.0"
-        app:srcCompat="@drawable/cloud_empty" />
 
     <ScrollView
         android:layout_width="match_parent"
@@ -278,6 +262,7 @@
         android:id="@+id/nav_window"
         android:layout_width="420sp"
         android:layout_height="match_parent"
+        android:background="?attr/colorSurfaceVariant"
         android:clickable="true"
         android:elevation="5dp"
         android:translationX="-420sp"
@@ -293,25 +278,21 @@
             android:layout_marginStart="250dp"
             android:elevation="-10dp"
             android:background="@color/transparent"
-            
+
             android:text=""
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <ImageView
+        <View
             android:id="@+id/nav_image"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="280dp"
-            android:elevation="2dp"
-            android:scaleY="3"
+            android:layout_width="260dp"
+            android:layout_height="match_parent"
+            android:background="?attr/colorSurfaceVariant"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/bg2" />
+            app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView
             android:id="@+id/nav_menu_logo"
@@ -336,6 +317,7 @@
             android:layout_marginBottom="410dp"
             android:fontFamily="@font/exodemibold"
             android:text="Menu"
+            android:textColor="?attr/colorOnSurface"
             android:textSize="40sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -368,9 +350,10 @@
             android:layout_marginBottom="250dp"
             android:background="@color/transparent"
             android:clickable="true"
-            
+
             android:paddingEnd="80sp"
             android:text="Home"
+            android:textColor="?attr/colorOnSurface"
             android:textSize="16sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -402,9 +385,10 @@
             android:layout_marginBottom="150dp"
             android:background="@color/transparent"
             android:clickable="true"
-            
+
             android:paddingStart="48sp"
             android:text="Liquor Cabinet"
+            android:textColor="?attr/colorOnSurface"
             android:textSize="16sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -437,9 +421,10 @@
             android:layout_marginBottom="150dp"
             android:background="@color/transparent"
             android:clickable="true"
-            
+
             android:paddingStart="43sp"
             android:text="Cocktail Menu"
+            android:textColor="?attr/colorOnSurface"
             android:textSize="16sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -473,9 +458,10 @@
             android:background="@color/transparent"
             android:elevation="5dp"
             android:clickable="true"
-            
+
             android:paddingEnd="40sp"
             android:text="Settings"
+            android:textColor="?attr/colorOnSurface"
             android:textSize="16sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"

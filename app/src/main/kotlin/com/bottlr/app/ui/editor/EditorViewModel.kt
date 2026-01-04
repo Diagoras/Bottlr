@@ -14,7 +14,7 @@ import javax.inject.Inject
 @HiltViewModel
 class EditorViewModel @Inject constructor(
     private val bottleRepository: BottleRepository,
-    private val savedStateHandle: SavedStateHandle
+    savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
     // Get bottleId from navigation args (-1 means new bottle)
@@ -31,6 +31,10 @@ class EditorViewModel @Inject constructor(
     // Save status for UI feedback
     private val _saveStatus = MutableStateFlow<SaveStatus>(SaveStatus.Idle)
     val saveStatus: StateFlow<SaveStatus> = _saveStatus.asStateFlow()
+
+    // Delete status for UI feedback
+    private val _deleteStatus = MutableStateFlow<DeleteStatus>(DeleteStatus.Idle)
+    val deleteStatus: StateFlow<DeleteStatus> = _deleteStatus.asStateFlow()
 
     val isEditMode: Boolean = bottleId != -1L
 
@@ -105,6 +109,20 @@ class EditorViewModel @Inject constructor(
     fun clearSaveStatus() {
         _saveStatus.value = SaveStatus.Idle
     }
+
+    fun deleteBottle() {
+        viewModelScope.launch {
+            try {
+                _deleteStatus.value = DeleteStatus.Deleting
+                _bottle.value?.let {
+                    bottleRepository.delete(it)
+                    _deleteStatus.value = DeleteStatus.Success
+                }
+            } catch (e: Exception) {
+                _deleteStatus.value = DeleteStatus.Error(e.message ?: "Failed to delete")
+            }
+        }
+    }
 }
 
 sealed class SaveStatus {
@@ -112,4 +130,11 @@ sealed class SaveStatus {
     object Saving : SaveStatus()
     object Success : SaveStatus()
     data class Error(val message: String) : SaveStatus()
+}
+
+sealed class DeleteStatus {
+    object Idle : DeleteStatus()
+    object Deleting : DeleteStatus()
+    object Success : DeleteStatus()
+    data class Error(val message: String) : DeleteStatus()
 }

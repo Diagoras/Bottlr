@@ -12,8 +12,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class GalleryViewModel @Inject constructor(
-    private val bottleRepository: BottleRepository,
-    private val cocktailRepository: CocktailRepository
+    bottleRepository: BottleRepository,
+    cocktailRepository: CocktailRepository
 ) : ViewModel() {
 
     // State: Are we viewing bottles (true) or cocktails (false)?

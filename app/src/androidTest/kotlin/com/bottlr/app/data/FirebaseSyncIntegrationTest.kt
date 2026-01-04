@@ -1,7 +1,8 @@
 package com.bottlr.app.data
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import app.cash.turbine.test
+import com.bottlr.app.data.local.dao.BottleDao
+import com.bottlr.app.data.local.dao.CocktailDao
 import com.bottlr.app.data.local.entities.BottleEntity
 import com.bottlr.app.data.local.entities.CocktailEntity
 import com.bottlr.app.data.repository.BottleRepository
@@ -50,6 +51,12 @@ class FirebaseSyncIntegrationTest {
     lateinit var cocktailRepository: CocktailRepository
 
     @Inject
+    lateinit var bottleDao: BottleDao
+
+    @Inject
+    lateinit var cocktailDao: CocktailDao
+
+    @Inject
     lateinit var firebaseAuth: FirebaseAuth
 
     @Inject
@@ -63,8 +70,8 @@ class FirebaseSyncIntegrationTest {
 
         // Clean up local database before each test
         runBlocking {
-            bottleRepository.eraseAllLocal()
-            cocktailRepository.eraseAllLocal()
+            bottleDao.deleteAll()
+            cocktailDao.deleteAll()
         }
 
         // Create a test user in the emulator
@@ -184,10 +191,9 @@ class FirebaseSyncIntegrationTest {
         // When
         bottleRepository.syncToFirestore(bottleId)
 
-        // Then - local bottle should be marked as synced
+        // Then - local bottle should have firestoreId set
         val updatedBottle = bottleRepository.getBottleById(bottleId).first()
         assertNotNull("Bottle should have firestoreId", updatedBottle?.firestoreId)
-        assertTrue("Bottle should be marked as synced", updatedBottle?.firebaseSynced == true)
     }
 
     @Test
@@ -393,117 +399,4 @@ class FirebaseSyncIntegrationTest {
         assertNull("Should not have firestoreId when not logged in", updatedBottle?.firestoreId)
     }
 
-    // === DATA ERASURE TESTS ===
-
-    @Test
-    fun eraseAllBottlesFromFirestore_deletesAllBottles() = runTest {
-        // Given - multiple synced bottles
-        val bottle1 = BottleEntity(name = "Erase 1", distillery = "Test")
-        val bottle2 = BottleEntity(name = "Erase 2", distillery = "Test")
-        val bottle3 = BottleEntity(name = "Erase 3", distillery = "Test")
-        val id1 = bottleRepository.insert(bottle1)
-        val id2 = bottleRepository.insert(bottle2)
-        val id3 = bottleRepository.insert(bottle3)
-        bottleRepository.syncToFirestore(id1)
-        bottleRepository.syncToFirestore(id2)
-        bottleRepository.syncToFirestore(id3)
-
-        // Verify they're in Firestore
-        val userId = testUserId!!
-        var snapshot = firestore.collection("users")
-            .document(userId)
-            .collection("bottles")
-            .get()
-            .await()
-        assertEquals("Should have 3 bottles in Firestore", 3, snapshot.documents.size)
-
-        // When - erase all from Firestore
-        bottleRepository.eraseAllFromFirestore()
-
-        // Then - Firestore should be empty
-        snapshot = firestore.collection("users")
-            .document(userId)
-            .collection("bottles")
-            .get()
-            .await()
-        assertEquals("Firestore should be empty after erase", 0, snapshot.documents.size)
-    }
-
-    @Test
-    fun eraseAllCocktailsFromFirestore_deletesAllCocktails() = runTest {
-        // Given - multiple synced cocktails
-        val cocktail1 = CocktailEntity(name = "Erase 1", base = "Vodka")
-        val cocktail2 = CocktailEntity(name = "Erase 2", base = "Gin")
-        val id1 = cocktailRepository.insert(cocktail1)
-        val id2 = cocktailRepository.insert(cocktail2)
-        cocktailRepository.syncToFirestore(id1)
-        cocktailRepository.syncToFirestore(id2)
-
-        // Verify they're in Firestore
-        val userId = testUserId!!
-        var snapshot = firestore.collection("users")
-            .document(userId)
-            .collection("cocktails")
-            .get()
-            .await()
-        assertEquals("Should have 2 cocktails in Firestore", 2, snapshot.documents.size)
-
-        // When
-        cocktailRepository.eraseAllFromFirestore()
-
-        // Then
-        snapshot = firestore.collection("users")
-            .document(userId)
-            .collection("cocktails")
-            .get()
-            .await()
-        assertEquals("Firestore should be empty after erase", 0, snapshot.documents.size)
-    }
-
-    @Test
-    fun eraseAllFromFirestore_keepsLocalData() = runTest {
-        // Given - synced bottles
-        val bottle = BottleEntity(name = "Keep Local", distillery = "Test")
-        val bottleId = bottleRepository.insert(bottle)
-        bottleRepository.syncToFirestore(bottleId)
-
-        // When - erase from Firestore
-        bottleRepository.eraseAllFromFirestore()
-
-        // Then - local data should still exist
-        val localBottles = bottleRepository.allBottles.first()
-        assertTrue("Local bottle should still exist", localBottles.any { it.name == "Keep Local" })
-    }
-
-    @Test
-    fun eraseAllLocal_deletesLocalData() = runTest {
-        // Given - bottles in local database
-        val bottle1 = BottleEntity(name = "Local 1", distillery = "Test")
-        val bottle2 = BottleEntity(name = "Local 2", distillery = "Test")
-        bottleRepository.insert(bottle1)
-        bottleRepository.insert(bottle2)
-
-        // Verify they exist locally
-        var localBottles = bottleRepository.allBottles.first()
-        assertEquals("Should have 2 local bottles", 2, localBottles.size)
-
-        // When
-        bottleRepository.eraseAllLocal()
-
-        // Then
-        localBottles = bottleRepository.allBottles.first()
-        assertEquals("Local database should be empty", 0, localBottles.size)
-    }
-
-    @Test
-    fun eraseAllFromFirestore_whenNotLoggedIn_doesNothing() = runTest {
-        // Given - sign out
-        firebaseAuth.signOut()
-
-        // When - try to erase (should not throw)
-        bottleRepository.eraseAllFromFirestore()
-
-        // Then - no exception means success
-        assertTrue(true)
-    }
 }

@@ -59,22 +59,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <ImageButton
-        android:id="@+id/cloud_sync_button_home"
-        android:layout_width="56dp"
-        android:layout_height="56dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        android:src="@drawable/cloud_empty"
-        android:scaleType="centerInside"
-        android:padding="12dp"
-        app:tint="?attr/colorOnSurface"
-        android:contentDescription="Sync"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-
     <Button
         android:id="@+id/login_Button"
         android:layout_width="184dp"
@@ -93,22 +77,6 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.259" />
 
-
-    <Button
-        android:id="@+id/sync_Button"
-        android:layout_width="360dp"
-        android:layout_height="65dp"
-        android:backgroundTint="?attr/colorPrimary"
-        android:fontFamily="@font/exodemibold"
-        android:text="Sync Now"
-        android:textColor="?attr/colorOnPrimary"
-        android:textSize="25dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.49"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.44" />
 
     <!-- Theme Selection -->
     <TextView
@@ -163,23 +131,6 @@
             android:layout_marginStart="16dp" />
 
     </RadioGroup>
-
-    <Button
-        android:id="@+id/erase_Button"
-        android:layout_width="284dp"
-        android:layout_height="70dp"
-        android:backgroundTint="@color/red"
-        android:fontFamily="@font/exodemibold"
-        android:text="@string/erase_cloud_storage"
-        android:textColor="@color/white"
-        android:textSize="20dp"
-        android:visibility="gone"
-                app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.496"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.68" />
 
     <Button
         android:id="@+id/logout_Button"

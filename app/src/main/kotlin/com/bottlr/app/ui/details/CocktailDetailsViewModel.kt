@@ -11,7 +11,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class CocktailDetailsViewModel @Inject constructor(
-    private val cocktailRepository: CocktailRepository,
+    cocktailRepository: CocktailRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 

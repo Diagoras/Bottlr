@@ -77,7 +77,7 @@ class ViewEditBottleFlowTest {
     fun gallery_fabAndSearchVisible() {
         navigateToGallery()
         onView(withId(R.id.fab)).check(matches(isDisplayed()))
-        onView(withId(R.id.search_liquor_button)).check(matches(isDisplayed()))
+        onView(withId(R.id.search_layout)).check(matches(isDisplayed()))
     }
 
     @Test

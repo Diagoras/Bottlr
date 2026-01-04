@@ -53,6 +53,7 @@ class BottleEditorFragment : Fragment() {
     private lateinit var photoPreview: ImageView
     private lateinit var saveButton: Button
     private lateinit var addPhotoButton: Button
+    private lateinit var deleteButton: ImageButton
 
     private var tempPhotoUri: Uri? = null
 
@@ -101,6 +102,12 @@ class BottleEditorFragment : Fragment() {
         photoPreview = view.findViewById(R.id.imagePreview)
         saveButton = view.findViewById(R.id.saveButton)
         addPhotoButton = view.findViewById(R.id.addPhotoButton)
+        deleteButton = view.findViewById(R.id.deleteButton)
+
+        // Show delete button only when editing existing bottle
+        if (viewModel.isEditMode) {
+            deleteButton.visibility = View.VISIBLE
+        }
 
         setupNavWindow(view)
         setupObservers()
@@ -182,6 +189,28 @@ class BottleEditorFragment : Fragment() {
                 }
             }
         }
+
+        // Observe delete status
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.deleteStatus.collectLatest { status ->
+                when (status) {
+                    is DeleteStatus.Deleting -> {
+                        deleteButton.isEnabled = false
+                    }
+                    is DeleteStatus.Success -> {
+                        Snackbar.make(requireView(), "Bottle deleted", Snackbar.LENGTH_SHORT).show()
+                        findNavController().navigateUp()
+                    }
+                    is DeleteStatus.Error -> {
+                        Snackbar.make(requireView(), "Error: ${status.message}", Snackbar.LENGTH_LONG).show()
+                        deleteButton.isEnabled = true
+                    }
+                    is DeleteStatus.Idle -> {
+                        deleteButton.isEnabled = true
+                    }
+                }
+            }
+        }
     }
 
     private fun setupClickListeners() {
@@ -192,6 +221,21 @@ class BottleEditorFragment : Fragment() {
         addPhotoButton.setOnClickListener {
             showPhotoDialog()
         }
+
+        deleteButton.setOnClickListener {
+            showDeleteConfirmation()
+        }
+    }
+
+    private fun showDeleteConfirmation() {
+        AlertDialog.Builder(requireContext())
+            .setTitle("Delete Bottle")
+            .setMessage("Are you sure you want to delete this bottle? This cannot be undone.")
+            .setPositiveButton("Delete") { _, _ ->
+                viewModel.deleteBottle()
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
     }
 
     private fun saveBottle() {

@@ -109,8 +109,7 @@ class CocktailRepository @Inject constructor(
                 keywords = doc.getString("keywords") ?: "",
                 rating = doc.getDouble("rating")?.toFloat(),
                 updatedAt = doc.getLong("updatedAt")?.let { java.time.Instant.ofEpochMilli(it) } ?: java.time.Instant.now(),
-                firestoreId = doc.id,
-                firebaseSynced = true
+                firestoreId = doc.id
             )
             cocktailDao.insert(cocktail)
         }
@@ -152,33 +151,5 @@ class CocktailRepository @Inject constructor(
             .document(firestoreId)
             .delete()
             .await()
-    }
-
-    /**
-     * Erase all cocktails from Firestore for the current user.
-     * Does not delete local data.
-     */
-    suspend fun eraseAllFromFirestore() {
-        val userId = auth.currentUser?.uid ?: return
-
-        val snapshot = firestore.collection("users")
-            .document(userId)
-            .collection("cocktails")
-            .get()
-            .await()
-
-        snapshot.documents.forEach { doc ->
-            doc.reference.delete().await()
-        }
-    }
-
-    /**
-     * Erase all cocktails from local database.
-     */
-    suspend fun eraseAllLocal() {
-        val cocktails = allCocktails.first()
-        cocktails.forEach { cocktail ->
-            cocktailDao.delete(cocktail)
-        }
     }
 }

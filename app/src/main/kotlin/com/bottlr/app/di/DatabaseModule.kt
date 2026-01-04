@@ -5,7 +5,6 @@ import androidx.room.Room
 import com.bottlr.app.data.local.BottlrDatabase
 import com.bottlr.app.data.local.dao.BottleDao
 import com.bottlr.app.data.local.dao.CocktailDao
-import com.bottlr.app.data.local.dao.LocationDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -24,7 +23,7 @@ object DatabaseModule {
             context,
             BottlrDatabase::class.java,
             "bottlr_database"
-        ).build()
+        ).fallbackToDestructiveMigration().build()
     }
 
     @Provides
@@ -35,10 +34,5 @@ object DatabaseModule {
     @Provides
     fun provideCocktailDao(database: BottlrDatabase): CocktailDao {
         return database.cocktailDao()
-    }
-
-    @Provides
-    fun provideLocationDao(database: BottlrDatabase): LocationDao {
-        return database.locationDao()
     }
 }

@@ -48,11 +48,11 @@
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@drawable/cloud_empty"
+            android:src="@drawable/settings"
             android:scaleType="centerInside"
             android:padding="12dp"
             app:tint="?attr/colorOnSurface"
-            android:contentDescription="Account" />
+            android:contentDescription="Settings" />
 
     </LinearLayout>
 

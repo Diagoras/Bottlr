@@ -58,8 +58,6 @@ class SettingsFragment : Fragment() {
     private lateinit var userTextView: TextView
     private lateinit var loginButton: Button
     private lateinit var logoutButton: Button
-    private lateinit var eraseButton: Button
-    private lateinit var syncButton: Button
     private lateinit var themeRadioGroup: RadioGroup
     private var navDrawer: NavDrawerHelper? = null
 
@@ -76,8 +74,6 @@ class SettingsFragment : Fragment() {
         userTextView = view.findViewById(R.id.signed_in_user)
         loginButton = view.findViewById(R.id.login_Button)
         logoutButton = view.findViewById(R.id.logout_Button)
-        eraseButton = view.findViewById(R.id.erase_Button)
-        syncButton = view.findViewById(R.id.sync_Button)
         themeRadioGroup = view.findViewById(R.id.theme_radio_group)
 
         // Nav drawer setup
@@ -155,14 +151,10 @@ class SettingsFragment : Fragment() {
             userTextView.text = currentUser.email ?: "Signed in"
             loginButton.visibility = View.GONE
             logoutButton.visibility = View.VISIBLE
-            eraseButton.visibility = View.VISIBLE
-            syncButton.visibility = View.VISIBLE
         } else {
             userTextView.text = getString(R.string.not_signed_in)
             loginButton.visibility = View.VISIBLE
             logoutButton.visibility = View.GONE
-            eraseButton.visibility = View.GONE
-            syncButton.visibility = View.GONE
         }
     }
 
@@ -173,31 +165,6 @@ class SettingsFragment : Fragment() {
 
         logoutButton.setOnClickListener {
             signOut()
-        }
-
-        eraseButton.setOnClickListener {
-            eraseCloudStorage()
-        }
-
-        syncButton.setOnClickListener {
-            syncNow()
-        }
-    }
-
-    private fun syncNow() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            try {
-                showSnackbar("Syncing...")
-                // Upload local changes
-                bottleRepository.syncAllToFirestore()
-                cocktailRepository.syncAllToFirestore()
-                // Pull remote changes
-                bottleRepository.syncFromFirestore()
-                cocktailRepository.syncFromFirestore()
-                showSnackbar("Sync complete")
-            } catch (e: Exception) {
-                showSnackbar("Sync failed: ${e.message}")
-            }
         }
     }
 
@@ -267,18 +234,5 @@ class SettingsFragment : Fragment() {
         auth.signOut()
         setupUI()
         showSnackbar("Signed out")
-    }
-
-    private fun eraseCloudStorage() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            try {
-                showSnackbar("Erasing cloud storage...")
-                bottleRepository.eraseAllFromFirestore()
-                cocktailRepository.eraseAllFromFirestore()
-                showSnackbar("Cloud storage erased")
-            } catch (e: Exception) {
-                showSnackbar("Failed: ${e.message}")
-            }
-        }
     }
 }

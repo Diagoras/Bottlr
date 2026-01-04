@@ -42,9 +42,9 @@ interface BottleDao {
     @Delete
     suspend fun delete(bottle: BottleEntity)
 
-    @Query("SELECT * FROM bottles WHERE firebaseSynced = 0")
-    suspend fun getUnsyncedBottles(): List<BottleEntity>
+    @Query("DELETE FROM bottles")
+    suspend fun deleteAll()
 
-    @Query("UPDATE bottles SET firebaseSynced = 1, firestoreId = :firestoreId WHERE id = :id")
+    @Query("UPDATE bottles SET firestoreId = :firestoreId WHERE id = :id")
     suspend fun markSynced(id: Long, firestoreId: String)
 }

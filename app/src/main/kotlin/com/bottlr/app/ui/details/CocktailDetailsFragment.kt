@@ -1,6 +1,5 @@
 package com.bottlr.app.ui.details
 
-import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -36,7 +35,6 @@ class CocktailDetailsFragment : Fragment() {
     private lateinit var notesText: TextView
     private lateinit var keywordsText: TextView
     private lateinit var editButton: ImageButton
-    private lateinit var shareButton: ImageButton
     private lateinit var backButton: ImageButton
 
     override fun onCreateView(
@@ -54,7 +52,6 @@ class CocktailDetailsFragment : Fragment() {
         notesText = view.findViewById(R.id.cvNotes)
         keywordsText = view.findViewById(R.id.cvKeywords)
         editButton = view.findViewById(R.id.editButton)
-        shareButton = view.findViewById(R.id.shareButton)
         backButton = view.findViewById(R.id.backButton)
 
         setupNavWindow(view)
@@ -122,10 +119,6 @@ class CocktailDetailsFragment : Fragment() {
             findNavController().navigateUp()
         }
 
-        shareButton.setOnClickListener {
-            shareCocktail()
-        }
-
         editButton.setOnClickListener {
             Snackbar.make(requireView(), "Edit coming soon", Snackbar.LENGTH_SHORT).show()
         }
@@ -154,27 +147,5 @@ class CocktailDetailsFragment : Fragment() {
                 .error(R.drawable.nodrinkimg)
                 .into(cocktailImage)
         } ?: cocktailImage.setImageResource(R.drawable.nodrinkimg)
-    }
-
-    private fun shareCocktail() {
-        viewModel.cocktail.value?.let { cocktail ->
-            val text = buildString {
-                append("Check out this cocktail!\n\n")
-                append("${cocktail.name}\n")
-                append("Base: ${cocktail.base}\n")
-                if (cocktail.mixer.isNotEmpty()) append("Mixer: ${cocktail.mixer}\n")
-                if (cocktail.juice.isNotEmpty()) append("Juice: ${cocktail.juice}\n")
-                if (cocktail.liqueur.isNotEmpty()) append("Liqueur: ${cocktail.liqueur}\n")
-                if (cocktail.garnish.isNotEmpty()) append("Garnish: ${cocktail.garnish}\n")
-                cocktail.rating?.let { append("Rating: $it/10\n") }
-                if (cocktail.notes.isNotEmpty()) append("\nNotes: ${cocktail.notes}")
-            }
-
-            val intent = Intent(Intent.ACTION_SEND).apply {
-                type = "text/plain"
-                putExtra(Intent.EXTRA_TEXT, text)
-            }
-            startActivity(Intent.createChooser(intent, "Share Cocktail"))
-        }
     }
 }

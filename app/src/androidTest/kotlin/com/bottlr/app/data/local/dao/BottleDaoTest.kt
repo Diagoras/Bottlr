@@ -249,17 +249,6 @@ class BottleDaoTest {
     // === SYNC TESTS ===
 
     @Test
-    fun getUnsyncedBottles_returnsOnlyUnsynced() = runTest {
-        dao.insert(testBottle(name = "Synced").copy(firebaseSynced = true))
-        dao.insert(testBottle(name = "Unsynced 1"))
-        dao.insert(testBottle(name = "Unsynced 2"))
-
-        val unsynced = dao.getUnsyncedBottles()
-        assertEquals(2, unsynced.size)
-        assertTrue(unsynced.all { !it.firebaseSynced })
-    }
-
-    @Test
     fun markSynced_updatesBottle() = runTest {
         val id = dao.insert(testBottle())
 
@@ -267,7 +256,6 @@ class BottleDaoTest {
 
         dao.getBottleById(id).test {
             val bottle = awaitItem()!!
-            assertTrue(bottle.firebaseSynced)
             assertEquals("firestore-123", bottle.firestoreId)
             cancelAndIgnoreRemainingEvents()
         }

@@ -53,13 +53,13 @@ class SettingsFlowTest {
     }
 
     @Test
-    fun settingsScreen_feedbackButtonDisplayed() {
+    fun settingsScreen_themeOptionsDisplayed() {
         // Navigate to settings
         onView(withId(R.id.menu_icon)).perform(click())
         onView(withId(R.id.menu_settings_button)).perform(click())
 
-        // Verify feedback button is displayed
-        onView(withId(R.id.feedback_Button))
+        // Verify theme label is displayed
+        onView(withId(R.id.theme_label))
             .check(matches(isDisplayed()))
     }
 

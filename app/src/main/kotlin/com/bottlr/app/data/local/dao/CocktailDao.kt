@@ -39,9 +39,9 @@ interface CocktailDao {
     @Delete
     suspend fun delete(cocktail: CocktailEntity)
 
-    @Query("SELECT * FROM cocktails WHERE firebaseSynced = 0")
-    suspend fun getUnsyncedCocktails(): List<CocktailEntity>
+    @Query("DELETE FROM cocktails")
+    suspend fun deleteAll()
 
-    @Query("UPDATE cocktails SET firebaseSynced = 1, firestoreId = :firestoreId WHERE id = :id")
+    @Query("UPDATE cocktails SET firestoreId = :firestoreId WHERE id = :id")
     suspend fun markSynced(id: Long, firestoreId: String)
 }

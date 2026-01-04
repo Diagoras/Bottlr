@@ -44,6 +44,7 @@ class CocktailEditorFragment : Fragment() {
     private lateinit var ratingField: EditText
     private lateinit var saveButton: Button
     private lateinit var addPhotoButton: Button
+    private lateinit var deleteButton: ImageButton
 
     private var tempPhotoUri: Uri? = null
 
@@ -90,6 +91,12 @@ class CocktailEditorFragment : Fragment() {
         ratingField = view.findViewById(R.id.ratingField)
         saveButton = view.findViewById(R.id.saveButtonCocktail)
         addPhotoButton = view.findViewById(R.id.addPhotoButtonCocktail)
+        deleteButton = view.findViewById(R.id.deleteButton)
+
+        // Show delete button only when editing existing cocktail
+        if (viewModel.isEditMode) {
+            deleteButton.visibility = View.VISIBLE
+        }
 
         setupNavWindow(view)
         setupObservers()
@@ -158,6 +165,28 @@ class CocktailEditorFragment : Fragment() {
                 }
             }
         }
+
+        // Observe delete status
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.deleteStatus.collectLatest { status ->
+                when (status) {
+                    is DeleteStatus.Deleting -> {
+                        deleteButton.isEnabled = false
+                    }
+                    is DeleteStatus.Success -> {
+                        Snackbar.make(requireView(), "Cocktail deleted", Snackbar.LENGTH_SHORT).show()
+                        findNavController().navigateUp()
+                    }
+                    is DeleteStatus.Error -> {
+                        Snackbar.make(requireView(), "Error: ${status.message}", Snackbar.LENGTH_LONG).show()
+                        deleteButton.isEnabled = true
+                    }
+                    is DeleteStatus.Idle -> {
+                        deleteButton.isEnabled = true
+                    }
+                }
+            }
+        }
     }
 
     private fun setupClickListeners() {
@@ -168,6 +197,21 @@ class CocktailEditorFragment : Fragment() {
         addPhotoButton.setOnClickListener {
             showPhotoDialog()
         }
+
+        deleteButton.setOnClickListener {
+            showDeleteConfirmation()
+        }
+    }
+
+    private fun showDeleteConfirmation() {
+        AlertDialog.Builder(requireContext())
+            .setTitle("Delete Cocktail")
+            .setMessage("Are you sure you want to delete this cocktail? This cannot be undone.")
+            .setPositiveButton("Delete") { _, _ ->
+                viewModel.deleteCocktail()
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
     }
 
     private fun saveCocktail() {

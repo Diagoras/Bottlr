@@ -1,6 +1,5 @@
 package com.bottlr.app.ui.details
 
-import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -46,8 +45,6 @@ class BottleDetailsFragment : Fragment() {
     private lateinit var notesText: TextView
     private lateinit var keywordsText: TextView
     private lateinit var editButton: ImageButton
-    private lateinit var shareButton: ImageButton
-    private lateinit var buyButton: ImageButton
     private lateinit var backButton: ImageButton
     private lateinit var nfcButton: ImageButton
 
@@ -67,8 +64,6 @@ class BottleDetailsFragment : Fragment() {
         notesText = view.findViewById(R.id.tvNotes)
         keywordsText = view.findViewById(R.id.tvKeywords)
         editButton = view.findViewById(R.id.editButton)
-        shareButton = view.findViewById(R.id.shareButton)
-        buyButton = view.findViewById(R.id.buyButton)
         backButton = view.findViewById(R.id.backButton)
         nfcButton = view.findViewById(R.id.nfcButton)
 
@@ -150,28 +145,12 @@ class BottleDetailsFragment : Fragment() {
             }
         }
 
-        shareButton.setOnClickListener {
-            shareBottle()
-        }
-
         backButton.setOnClickListener {
             findNavController().navigateUp()
         }
 
-        buyButton.setOnClickListener {
-            searchForBottle()
-        }
-
         nfcButton.setOnClickListener {
             Snackbar.make(requireView(), "NFC sharing coming soon", Snackbar.LENGTH_SHORT).show()
-        }
-    }
-
-    private fun searchForBottle() {
-        viewModel.bottle.value?.let { bottle ->
-            val query = "${bottle.name} ${bottle.distillery}".trim()
-            val searchUri = Uri.parse("https://www.google.com/search?q=${Uri.encode(query)}+buy")
-            startActivity(Intent(Intent.ACTION_VIEW, searchUri))
         }
     }
 
@@ -198,27 +177,5 @@ class BottleDetailsFragment : Fragment() {
                 .error(R.drawable.nodrinkimg)
                 .into(bottleImage)
         } ?: bottleImage.setImageResource(R.drawable.nodrinkimg)
-    }
-
-    private fun shareBottle() {
-        viewModel.bottle.value?.let { bottle ->
-            val text = buildString {
-                append("Check out this bottle!\n\n")
-                append("${bottle.name}\n")
-                append("Distillery: ${bottle.distillery}\n")
-                bottle.abv?.let { append("ABV: $it%\n") }
-                bottle.age?.let { append("Age: $it years\n") }
-                bottle.rating?.let { append("Rating: $it/10\n") }
-                if (bottle.notes.isNotEmpty()) {
-                    append("\nNotes: ${bottle.notes}")
-                }
-            }
-
-            val intent = Intent(Intent.ACTION_SEND).apply {
-                type = "text/plain"
-                putExtra(Intent.EXTRA_TEXT, text)
-            }
-            startActivity(Intent.createChooser(intent, "Share Bottle"))
-        }
     }
 }
