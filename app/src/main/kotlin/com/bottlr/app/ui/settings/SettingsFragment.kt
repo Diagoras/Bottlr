@@ -1,5 +1,3 @@
-@file:Suppress("DEPRECATION") // GoogleSignIn is deprecated but Credential Manager migration is non-trivial
-
 package com.bottlr.app.ui.settings
 
 import android.content.Context
@@ -10,19 +8,23 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.RadioGroup
 import android.widget.TextView
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.credentials.CredentialManager
+import androidx.credentials.CustomCredential
+import androidx.credentials.GetCredentialRequest
+import androidx.credentials.GetCredentialResponse
+import androidx.credentials.exceptions.GetCredentialException
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.bottlr.app.MainActivity
 import com.bottlr.app.R
 import com.bottlr.app.data.repository.BottleRepository
-import com.bottlr.app.util.NavDrawerHelper
 import com.bottlr.app.data.repository.CocktailRepository
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-import com.google.android.gms.common.api.ApiException
+import com.bottlr.app.util.NavDrawerHelper
+import com.google.android.libraries.identity.googleid.GetGoogleIdOption
+import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
+import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
@@ -35,7 +37,7 @@ import javax.inject.Inject
  * SettingsFragment - Firebase authentication and cloud sync
  *
  * Features:
- * - Google Sign-In
+ * - Google Sign-In (via Credential Manager)
  * - Sign out
  * - Erase cloud storage
  */
@@ -51,6 +53,8 @@ class SettingsFragment : Fragment() {
     @Inject
     lateinit var cocktailRepository: CocktailRepository
 
+    private lateinit var credentialManager: CredentialManager
+
     private lateinit var userTextView: TextView
     private lateinit var loginButton: Button
     private lateinit var logoutButton: Button
@@ -59,26 +63,14 @@ class SettingsFragment : Fragment() {
     private lateinit var themeRadioGroup: RadioGroup
     private var navDrawer: NavDrawerHelper? = null
 
-    private val signInLauncher = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
-        try {
-            val account = task.getResult(ApiException::class.java)
-            account.idToken?.let { firebaseAuthWithGoogle(it) }
-        } catch (e: ApiException) {
-            if (isAdded && view != null) {
-                Snackbar.make(requireView(), "Sign-in failed: ${e.statusCode}", Snackbar.LENGTH_LONG).show()
-            }
-        }
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.activity_settings, container, false)
+
+        credentialManager = CredentialManager.create(requireContext())
 
         // Initialize views with correct IDs from activity_settings.xml
         userTextView = view.findViewById(R.id.signed_in_user)
@@ -216,13 +208,46 @@ class SettingsFragment : Fragment() {
     }
 
     private fun signIn() {
-        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken(getString(R.string.bottlr_web_client_id))
-            .requestEmail()
+        val googleIdOption = GetGoogleIdOption.Builder()
+            .setFilterByAuthorizedAccounts(false)
+            .setServerClientId(getString(R.string.bottlr_web_client_id))
             .build()
 
-        val googleSignInClient = GoogleSignIn.getClient(requireActivity(), gso)
-        signInLauncher.launch(googleSignInClient.signInIntent)
+        val request = GetCredentialRequest.Builder()
+            .addCredentialOption(googleIdOption)
+            .build()
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            try {
+                val result = credentialManager.getCredential(
+                    request = request,
+                    context = requireContext()
+                )
+                handleSignInResult(result)
+            } catch (e: GetCredentialException) {
+                showSnackbar("Sign-in failed: ${e.message}")
+            }
+        }
+    }
+
+    private fun handleSignInResult(result: GetCredentialResponse) {
+        when (val credential = result.credential) {
+            is CustomCredential -> {
+                if (credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
+                    try {
+                        val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
+                        firebaseAuthWithGoogle(googleIdTokenCredential.idToken)
+                    } catch (e: GoogleIdTokenParsingException) {
+                        showSnackbar("Invalid Google ID token")
+                    }
+                } else {
+                    showSnackbar("Unexpected credential type")
+                }
+            }
+            else -> {
+                showSnackbar("Unexpected credential type")
+            }
+        }
     }
 
     private fun firebaseAuthWithGoogle(idToken: String) {
