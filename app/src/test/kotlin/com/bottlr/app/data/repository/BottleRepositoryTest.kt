@@ -53,8 +53,10 @@ class BottleRepositoryTest {
     @Before
     fun setup() {
         MockKAnnotations.init(this)
-        // Default stub for allBottles (called in constructor)
+        // Default stubs for flows (accessed in constructor)
         every { dao.getAllBottles() } returns flowOf(emptyList())
+        every { dao.getAllBottlesNewestFirst() } returns flowOf(emptyList())
+        every { dao.getBottleCount() } returns flowOf(0)
         repository = BottleRepository(dao, firestore, storage, auth, context)
     }
 
@@ -202,6 +204,8 @@ class BottleRepositoryTest {
         // Given - recreate repository with stubbed data
         val bottles = TestFixtures.bottles(3)
         every { dao.getAllBottles() } returns flowOf(bottles)
+        every { dao.getAllBottlesNewestFirst() } returns flowOf(bottles)
+        every { dao.getBottleCount() } returns flowOf(3)
         val testRepository = BottleRepository(dao, firestore, storage, auth, context)
 
         // When/Then
@@ -244,6 +248,8 @@ class BottleRepositoryTest {
         // Given - recreate repository with stubbed data
         val bottles = TestFixtures.bottles(5)
         every { dao.getAllBottles() } returns flowOf(bottles)
+        every { dao.getAllBottlesNewestFirst() } returns flowOf(bottles)
+        every { dao.getBottleCount() } returns flowOf(5)
         val testRepository = BottleRepository(dao, firestore, storage, auth, context)
 
         // When/Then

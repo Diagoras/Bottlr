@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.Button
 import android.widget.RadioGroup
 import android.widget.TextView
@@ -17,6 +16,7 @@ import androidx.navigation.fragment.findNavController
 import com.bottlr.app.MainActivity
 import com.bottlr.app.R
 import com.bottlr.app.data.repository.BottleRepository
+import com.bottlr.app.util.NavDrawerHelper
 import com.bottlr.app.data.repository.CocktailRepository
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
@@ -55,9 +55,7 @@ class SettingsFragment : Fragment() {
     private lateinit var eraseButton: Button
     private lateinit var syncButton: Button
     private lateinit var themeRadioGroup: RadioGroup
-
-    private var navWindow: View? = null
-    private var isNavOpen = false
+    private var navDrawer: NavDrawerHelper? = null
 
     private val signInLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -88,15 +86,17 @@ class SettingsFragment : Fragment() {
         syncButton = view.findViewById(R.id.sync_Button)
         themeRadioGroup = view.findViewById(R.id.theme_radio_group)
 
-        // Nav window setup
-        navWindow = view.findViewById(R.id.nav_window)
+        // Nav drawer setup
+        view.findViewById<View>(R.id.nav_window)?.let {
+            navDrawer = NavDrawerHelper(it, resources = resources)
+        }
 
         view.findViewById<View>(R.id.menu_icon)?.setOnClickListener {
-            toggleNavWindow()
+            navDrawer?.toggle()
         }
 
         view.findViewById<View>(R.id.exit_nav_button)?.setOnClickListener {
-            closeNavWindow()
+            navDrawer?.close()
         }
 
         // Nav menu buttons
@@ -113,7 +113,7 @@ class SettingsFragment : Fragment() {
         }
 
         view.findViewById<View>(R.id.menu_settings_button)?.setOnClickListener {
-            closeNavWindow()
+            navDrawer?.close()
         }
 
         setupUI()
@@ -153,28 +153,6 @@ class SettingsFragment : Fragment() {
             }
             AppCompatDelegate.setDefaultNightMode(nightMode)
         }
-    }
-
-    private fun toggleNavWindow() {
-        if (isNavOpen) closeNavWindow() else openNavWindow()
-    }
-
-    private fun openNavWindow() {
-        navWindow?.animate()
-            ?.translationX(0f)
-            ?.setDuration(300)
-            ?.setInterpolator(AccelerateDecelerateInterpolator())
-            ?.start()
-        isNavOpen = true
-    }
-
-    private fun closeNavWindow() {
-        navWindow?.animate()
-            ?.translationX(-420f * resources.displayMetrics.density)
-            ?.setDuration(300)
-            ?.setInterpolator(AccelerateDecelerateInterpolator())
-            ?.start()
-        isNavOpen = false
     }
 
     private fun setupUI() {

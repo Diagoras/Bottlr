@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.TextView
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
@@ -12,6 +11,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.bottlr.app.R
+import com.bottlr.app.util.NavDrawerHelper
 import com.google.android.material.card.MaterialCardView
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
@@ -29,10 +29,7 @@ import kotlinx.coroutines.launch
 class HomeFragment : Fragment() {
 
     private val viewModel: HomeViewModel by viewModels()
-
-    private var navWindow: View? = null
-    private var navScrim: View? = null
-    private var isNavOpen = false
+    private var navDrawer: NavDrawerHelper? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -42,17 +39,18 @@ class HomeFragment : Fragment() {
         val view = inflater.inflate(R.layout.homescreen, container, false)
 
         // Setup nav drawer
-        navWindow = view.findViewById(R.id.nav_window)
-        navScrim = view.findViewById(R.id.nav_scrim)
-
-        // Menu button opens nav drawer
-        view.findViewById<View>(R.id.menu_icon)?.setOnClickListener {
-            toggleNavWindow()
+        val navWindow = view.findViewById<View>(R.id.nav_window)
+        val navScrim = view.findViewById<View>(R.id.nav_scrim)
+        if (navWindow != null) {
+            navDrawer = NavDrawerHelper(navWindow, navScrim, resources)
         }
 
-        // Scrim closes nav drawer
+        view.findViewById<View>(R.id.menu_icon)?.setOnClickListener {
+            navDrawer?.toggle()
+        }
+
         navScrim?.setOnClickListener {
-            closeNavWindow()
+            navDrawer?.close()
         }
 
         // Account button navigates to settings
@@ -87,21 +85,21 @@ class HomeFragment : Fragment() {
 
         // Nav drawer buttons
         view.findViewById<View>(R.id.menu_home_button)?.setOnClickListener {
-            closeNavWindow()
+            navDrawer?.close()
         }
 
         view.findViewById<View>(R.id.menu_liquorcab_button)?.setOnClickListener {
-            closeNavWindow()
+            navDrawer?.close()
             findNavController().navigate(R.id.action_home_to_gallery)
         }
 
         view.findViewById<View>(R.id.menu_cocktail_button)?.setOnClickListener {
-            closeNavWindow()
+            navDrawer?.close()
             findNavController().navigate(R.id.action_home_to_cocktails)
         }
 
         view.findViewById<View>(R.id.menu_settings_button)?.setOnClickListener {
-            closeNavWindow()
+            navDrawer?.close()
             findNavController().navigate(R.id.action_home_to_settings)
         }
 
@@ -122,39 +120,5 @@ class HomeFragment : Fragment() {
         }
 
         return view
-    }
-
-    private fun toggleNavWindow() {
-        if (isNavOpen) closeNavWindow() else openNavWindow()
-    }
-
-    private fun openNavWindow() {
-        navScrim?.visibility = View.VISIBLE
-        navScrim?.animate()
-            ?.alpha(1f)
-            ?.setDuration(300)
-            ?.start()
-
-        navWindow?.animate()
-            ?.translationX(0f)
-            ?.setDuration(300)
-            ?.setInterpolator(AccelerateDecelerateInterpolator())
-            ?.start()
-        isNavOpen = true
-    }
-
-    private fun closeNavWindow() {
-        navScrim?.animate()
-            ?.alpha(0f)
-            ?.setDuration(300)
-            ?.withEndAction { navScrim?.visibility = View.GONE }
-            ?.start()
-
-        navWindow?.animate()
-            ?.translationX(-280f * resources.displayMetrics.density)
-            ?.setDuration(300)
-            ?.setInterpolator(AccelerateDecelerateInterpolator())
-            ?.start()
-        isNavOpen = false
     }
 }

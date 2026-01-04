@@ -1,13 +1,11 @@
 package com.bottlr.app.ui.gallery
 
-import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.animation.AccelerateDecelerateInterpolator
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -15,10 +13,9 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.bottlr.app.Cocktail
 import com.bottlr.app.CocktailAdapter
 import com.bottlr.app.R
-import com.bottlr.app.data.local.entities.CocktailEntity
+import com.bottlr.app.util.NavDrawerHelper
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.textfield.TextInputEditText
 import dagger.hilt.android.AndroidEntryPoint
@@ -32,9 +29,7 @@ class CocktailGalleryFragment : Fragment() {
     private lateinit var adapter: CocktailAdapter
     private lateinit var recyclerView: RecyclerView
     private lateinit var fab: FloatingActionButton
-
-    private var navWindow: View? = null
-    private var isNavOpen = false
+    private var navDrawer: NavDrawerHelper? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -49,7 +44,10 @@ class CocktailGalleryFragment : Fragment() {
 
         // Setup adapter with click listener
         adapter = CocktailAdapter(mutableListOf()) { cocktail ->
-            navigateToDetails(cocktail.name)
+            findNavController().navigate(
+                R.id.action_cocktails_to_details,
+                bundleOf("cocktailId" to cocktail.id)
+            )
         }
         recyclerView.adapter = adapter
 
@@ -71,15 +69,17 @@ class CocktailGalleryFragment : Fragment() {
             }
         })
 
-        // Nav window setup
-        navWindow = view.findViewById(R.id.nav_window)
+        // Nav drawer setup
+        view.findViewById<View>(R.id.nav_window)?.let {
+            navDrawer = NavDrawerHelper(it, resources = resources)
+        }
 
         view.findViewById<View>(R.id.menu_icon)?.setOnClickListener {
-            toggleNavWindow()
+            navDrawer?.toggle()
         }
 
         view.findViewById<View>(R.id.exit_nav_button)?.setOnClickListener {
-            closeNavWindow()
+            navDrawer?.close()
         }
 
         // Nav menu buttons
@@ -92,7 +92,7 @@ class CocktailGalleryFragment : Fragment() {
         }
 
         view.findViewById<View>(R.id.menu_cocktail_button)?.setOnClickListener {
-            closeNavWindow() // Already on this screen
+            navDrawer?.close() // Already on this screen
         }
 
         view.findViewById<View>(R.id.menu_settings_button)?.setOnClickListener {
@@ -101,63 +101,11 @@ class CocktailGalleryFragment : Fragment() {
 
         // Observe cocktails from ViewModel
         viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.cocktails.collectLatest { cocktailEntities ->
-                val cocktails = cocktailEntities.map { convertToLegacyCocktail(it) }
+            viewModel.cocktails.collectLatest { cocktails ->
                 adapter.updateData(cocktails)
             }
         }
 
         return view
-    }
-
-    private fun navigateToDetails(cocktailName: String) {
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.cocktails.value.find { it.name == cocktailName }?.let { cocktail ->
-                findNavController().navigate(
-                    R.id.action_cocktails_to_details,
-                    bundleOf("cocktailId" to cocktail.id)
-                )
-            }
-        }
-    }
-
-    private fun convertToLegacyCocktail(entity: CocktailEntity): Cocktail {
-        return Cocktail(
-            name = entity.name,
-            base = entity.base,
-            mixer = entity.mixer,
-            juice = entity.juice,
-            liqueur = entity.liqueur,
-            garnish = entity.garnish,
-            extra = entity.extra,
-            photoUri = entity.photoUri?.let { Uri.parse(it) },
-            notes = entity.notes,
-            keywords = entity.keywords,
-            rating = entity.rating?.toString() ?: "",
-            cocktailID = entity.id.toString(),
-            createdAt = entity.createdAt
-        )
-    }
-
-    private fun toggleNavWindow() {
-        if (isNavOpen) closeNavWindow() else openNavWindow()
-    }
-
-    private fun openNavWindow() {
-        navWindow?.animate()
-            ?.translationX(0f)
-            ?.setDuration(300)
-            ?.setInterpolator(AccelerateDecelerateInterpolator())
-            ?.start()
-        isNavOpen = true
-    }
-
-    private fun closeNavWindow() {
-        navWindow?.animate()
-            ?.translationX(-280f * resources.displayMetrics.density)
-            ?.setDuration(300)
-            ?.setInterpolator(AccelerateDecelerateInterpolator())
-            ?.start()
-        isNavOpen = false
     }
 }

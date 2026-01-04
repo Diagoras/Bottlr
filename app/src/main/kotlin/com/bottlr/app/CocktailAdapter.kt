@@ -1,5 +1,6 @@
 package com.bottlr.app
 
+import android.net.Uri
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -7,21 +8,15 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.bottlr.app.data.local.entities.CocktailEntity
+import com.bottlr.app.util.toShortDateString
 import com.bumptech.glide.Glide
 import com.google.android.material.card.MaterialCardView
-import java.time.Instant
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
-import java.util.Locale
 
 class CocktailAdapter(
-    private var cocktails: MutableList<Cocktail> = mutableListOf(),
-    private val onCocktailClick: OnCocktailCheckListener
+    private var cocktails: MutableList<CocktailEntity> = mutableListOf(),
+    private val onCocktailClick: (CocktailEntity) -> Unit
 ) : RecyclerView.Adapter<CocktailAdapter.CocktailViewHolder>() {
-
-    fun interface OnCocktailCheckListener {
-        fun onButtonClick(cocktail: Cocktail)
-    }
 
     class CocktailViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val cardCocktail: MaterialCardView = itemView.findViewById(R.id.cardCocktail)
@@ -41,7 +36,7 @@ class CocktailAdapter(
         val cocktail = cocktails[position]
         holder.textName.text = cocktail.name
         holder.textBase.text = cocktail.base.ifEmpty { "Spirit" }
-        holder.textDate.text = formatDate(cocktail.createdAt)
+        holder.textDate.text = cocktail.createdAt.toShortDateString()
 
         // Build ingredients summary
         val ingredients = listOf(cocktail.base, cocktail.mixer, cocktail.juice)
@@ -50,10 +45,10 @@ class CocktailAdapter(
             .joinToString(", ")
         holder.textIngredients.text = ingredients.ifEmpty { cocktail.base }
 
-        cocktail.photoUri?.let {
-            if (it.toString().isNotEmpty() && it.toString() != "No photo") {
+        cocktail.photoUri?.let { uriString ->
+            if (uriString.isNotEmpty() && uriString != "No photo") {
                 Glide.with(holder.itemView.context)
-                    .load(it)
+                    .load(Uri.parse(uriString))
                     .centerCrop()
                     .error(R.drawable.nodrinkimg)
                     .into(holder.imageCocktail)
@@ -62,19 +57,14 @@ class CocktailAdapter(
             }
         } ?: holder.imageCocktail.setImageResource(R.drawable.nodrinkimg)
 
-        holder.cardCocktail.setOnClickListener { onCocktailClick.onButtonClick(cocktail) }
-    }
-
-    private fun formatDate(instant: Instant?): String {
-        if (instant == null) return ""
-        val formatter = DateTimeFormatter.ofPattern("MMM d", Locale.getDefault())
-            .withZone(ZoneId.systemDefault())
-        return formatter.format(instant)
+        holder.cardCocktail.setOnClickListener {
+            onCocktailClick(cocktail)
+        }
     }
 
     override fun getItemCount(): Int = cocktails.size
 
-    fun updateData(newCocktails: List<Cocktail>) {
+    fun updateData(newCocktails: List<CocktailEntity>) {
         Log.d("Search", "Updating cocktail adapter with ${newCocktails.size} items")
         this.cocktails = newCocktails.toMutableList()
         notifyDataSetChanged()

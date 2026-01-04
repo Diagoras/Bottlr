@@ -8,33 +8,15 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.bottlr.app.data.local.entities.BottleEntity
+import com.bottlr.app.util.toShortDateString
 import com.bumptech.glide.Glide
 import com.google.android.material.card.MaterialCardView
-import java.time.Instant
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
-import java.util.Locale
 
 class BottleAdapter(
-    private var bottles: MutableList<Bottle> = mutableListOf(),
-    private val onBottleClick: OnBottleCheckListener
+    private var bottles: MutableList<BottleEntity> = mutableListOf(),
+    private val onBottleClick: (BottleEntity) -> Unit
 ) : RecyclerView.Adapter<BottleAdapter.BottleViewHolder>() {
-
-    fun interface OnBottleCheckListener {
-        fun onButtonClick(
-            bottleName: String,
-            bottleId: String?,
-            bottleDistillery: String,
-            bottleType: String,
-            bottleABV: String,
-            bottleAge: String,
-            bottlePhoto: Uri?,
-            bottleNotes: String,
-            bottleRegion: String,
-            bottleRating: String,
-            bottleKeywords: String
-        )
-    }
 
     class BottleViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val cardBottle: MaterialCardView = itemView.findViewById(R.id.cardBottle)
@@ -55,12 +37,12 @@ class BottleAdapter(
         holder.textName.text = bottle.name
         holder.textDistillery.text = bottle.distillery
         holder.textType.text = bottle.type.ifEmpty { "Spirit" }
-        holder.textDate.text = formatDate(bottle.createdAt)
+        holder.textDate.text = bottle.createdAt.toShortDateString()
 
-        bottle.photoUri?.let {
-            if (it.toString().isNotEmpty() && it.toString() != "No photo") {
+        bottle.photoUri?.let { uriString ->
+            if (uriString.isNotEmpty() && uriString != "No photo") {
                 Glide.with(holder.itemView.context)
-                    .load(it)
+                    .load(Uri.parse(uriString))
                     .centerCrop()
                     .error(R.drawable.nodrinkimg)
                     .into(holder.imageBottle)
@@ -70,32 +52,13 @@ class BottleAdapter(
         } ?: holder.imageBottle.setImageResource(R.drawable.nodrinkimg)
 
         holder.cardBottle.setOnClickListener {
-            onBottleClick.onButtonClick(
-                bottle.name,
-                bottle.bottleID,
-                bottle.distillery,
-                bottle.type,
-                bottle.abv,
-                bottle.age,
-                bottle.photoUri,
-                bottle.notes,
-                bottle.region,
-                bottle.rating,
-                bottle.keywords
-            )
+            onBottleClick(bottle)
         }
-    }
-
-    private fun formatDate(instant: Instant?): String {
-        if (instant == null) return ""
-        val formatter = DateTimeFormatter.ofPattern("MMM d", Locale.getDefault())
-            .withZone(ZoneId.systemDefault())
-        return formatter.format(instant)
     }
 
     override fun getItemCount(): Int = bottles.size
 
-    fun updateData(newBottles: List<Bottle>) {
+    fun updateData(newBottles: List<BottleEntity>) {
         Log.d("Search", "Updating bottle adapter with ${newBottles.size} items")
         this.bottles = newBottles.toMutableList()
         notifyDataSetChanged()
