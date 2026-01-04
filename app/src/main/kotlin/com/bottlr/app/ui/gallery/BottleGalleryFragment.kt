@@ -2,24 +2,25 @@ package com.bottlr.app.ui.gallery
 
 import android.net.Uri
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AccelerateDecelerateInterpolator
-import android.widget.ImageButton
-import android.widget.Toast
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bottlr.app.Bottle
 import com.bottlr.app.BottleAdapter
 import com.bottlr.app.R
 import com.bottlr.app.data.local.entities.BottleEntity
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.textfield.TextInputEditText
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -39,7 +40,7 @@ class BottleGalleryFragment : Fragment() {
     private lateinit var adapter: BottleAdapter
     private lateinit var recyclerView: RecyclerView
     private lateinit var fab: FloatingActionButton
-    private lateinit var searchButton: ImageButton
+    private var searchEditText: TextInputEditText? = null
 
     private var navWindow: View? = null
     private var isNavOpen = false
@@ -53,11 +54,10 @@ class BottleGalleryFragment : Fragment() {
 
         // Setup RecyclerView
         recyclerView = view.findViewById(R.id.liquorRecycler)
-        recyclerView.layoutManager = GridLayoutManager(requireContext(), 2)
+        recyclerView.layoutManager = LinearLayoutManager(requireContext())
 
         // Setup adapter with click listener
         adapter = BottleAdapter(
-            mutableListOf(),
             mutableListOf()
         ) { bottleName, _, _, _, _, _, _, _, _, _, _ ->
             // Navigate to details with bottle name
@@ -74,11 +74,15 @@ class BottleGalleryFragment : Fragment() {
             )
         }
 
-        // Setup search button
-        searchButton = view.findViewById(R.id.search_liquor_button)
-        searchButton.setOnClickListener {
-            findNavController().navigate(R.id.action_gallery_to_search)
-        }
+        // Setup search field
+        searchEditText = view.findViewById(R.id.search_edit_text)
+        searchEditText?.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: Editable?) {
+                viewModel.setSearchQuery(s?.toString() ?: "")
+            }
+        })
 
         // Nav window setup
         navWindow = view.findViewById(R.id.nav_window)
@@ -151,6 +155,7 @@ class BottleGalleryFragment : Fragment() {
             entity.rating?.toString() ?: ""
         ).apply {
             bottleID = entity.id.toString()
+            createdAt = entity.createdAt
         }
     }
 
@@ -169,7 +174,7 @@ class BottleGalleryFragment : Fragment() {
 
     private fun closeNavWindow() {
         navWindow?.animate()
-            ?.translationX(-420f * resources.displayMetrics.density)
+            ?.translationX(-280f * resources.displayMetrics.density)
             ?.setDuration(300)
             ?.setInterpolator(AccelerateDecelerateInterpolator())
             ?.start()

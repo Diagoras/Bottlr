@@ -2,6 +2,7 @@ package com.bottlr.app.data.local.entities
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import java.time.Instant
 
 @Entity(tableName = "bottles")
 data class BottleEntity(
@@ -19,8 +20,8 @@ data class BottleEntity(
     val keywords: String = "",
     val rating: Float? = null,
 
-    val createdAt: Long = System.currentTimeMillis(),
-    val updatedAt: Long = System.currentTimeMillis(),
+    val createdAt: Instant = Instant.now(),
+    val updatedAt: Instant = Instant.now(),
 
     // Firestore sync tracking
     val firestoreId: String? = null,

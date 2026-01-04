@@ -9,6 +9,12 @@ interface BottleDao {
     @Query("SELECT * FROM bottles ORDER BY name ASC")
     fun getAllBottles(): Flow<List<BottleEntity>>
 
+    @Query("SELECT * FROM bottles ORDER BY createdAt DESC")
+    fun getAllBottlesNewestFirst(): Flow<List<BottleEntity>>
+
+    @Query("SELECT COUNT(*) FROM bottles")
+    fun getBottleCount(): Flow<Int>
+
     @Query("SELECT * FROM bottles WHERE id = :id")
     fun getBottleById(id: Long): Flow<BottleEntity?>
 

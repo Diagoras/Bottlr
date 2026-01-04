@@ -3,8 +3,11 @@ package com.bottlr.app
 import android.net.Uri
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
+import kotlinx.parcelize.TypeParceler
+import java.time.Instant
 
 @Parcelize
+@TypeParceler<Instant?, InstantParceler>
 data class Cocktail(
     var name: String,
     var base: String,
@@ -17,5 +20,6 @@ data class Cocktail(
     var notes: String,
     var keywords: String,
     var rating: String,
-    var cocktailID: String? = null
+    var cocktailID: String? = null,
+    var createdAt: Instant? = null
 ) : Parcelable

@@ -26,6 +26,8 @@ class BottleRepository @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
     val allBottles: Flow<List<BottleEntity>> = bottleDao.getAllBottles()
+    val allBottlesNewestFirst: Flow<List<BottleEntity>> = bottleDao.getAllBottlesNewestFirst()
+    val bottleCount: Flow<Int> = bottleDao.getBottleCount()
 
     fun getBottleById(id: Long): Flow<BottleEntity?> = bottleDao.getBottleById(id)
 
@@ -45,7 +47,7 @@ class BottleRepository @Inject constructor(
     }
 
     suspend fun update(bottle: BottleEntity) {
-        bottleDao.update(bottle.copy(updatedAt = System.currentTimeMillis()))
+        bottleDao.update(bottle.copy(updatedAt = java.time.Instant.now()))
     }
 
     suspend fun delete(bottle: BottleEntity) {
@@ -117,7 +119,7 @@ class BottleRepository @Inject constructor(
                 region = doc.getString("region") ?: "",
                 keywords = doc.getString("keywords") ?: "",
                 rating = doc.getDouble("rating")?.toFloat(),
-                updatedAt = doc.getLong("updatedAt") ?: System.currentTimeMillis(),
+                updatedAt = doc.getLong("updatedAt")?.let { java.time.Instant.ofEpochMilli(it) } ?: java.time.Instant.now(),
                 firestoreId = doc.id,
                 firebaseSynced = true
             )

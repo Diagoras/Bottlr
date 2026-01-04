@@ -7,7 +7,6 @@ import com.bottlr.app.data.local.entities.CocktailEntity
 import com.bottlr.app.data.repository.CocktailRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -28,17 +27,4 @@ class CocktailDetailsViewModel @Inject constructor(
     private val _deleteStatus = MutableStateFlow<DeleteStatus>(DeleteStatus.Idle)
     val deleteStatus: StateFlow<DeleteStatus> = _deleteStatus.asStateFlow()
 
-    fun deleteCocktail() {
-        viewModelScope.launch {
-            try {
-                _deleteStatus.value = DeleteStatus.Deleting
-                cocktail.value?.let {
-                    cocktailRepository.delete(it)
-                    _deleteStatus.value = DeleteStatus.Success
-                }
-            } catch (e: Exception) {
-                _deleteStatus.value = DeleteStatus.Error(e.message ?: "Failed to delete")
-            }
-        }
-    }
 }

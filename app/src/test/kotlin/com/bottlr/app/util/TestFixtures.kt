@@ -2,7 +2,6 @@ package com.bottlr.app.util
 
 import com.bottlr.app.data.local.entities.BottleEntity
 import com.bottlr.app.data.local.entities.CocktailEntity
-import com.bottlr.app.data.local.entities.LocationEntity
 
 /**
  * Factory methods for creating test data.
@@ -70,20 +69,6 @@ object TestFixtures {
         rating = rating,
         firestoreId = firestoreId,
         firebaseSynced = firebaseSynced
-    )
-
-    fun location(
-        id: Long = 0L,
-        name: String = "Test Location",
-        latitude: Double = 55.8642,
-        longitude: Double = -4.2518,
-        firestoreId: String? = null
-    ) = LocationEntity(
-        id = id,
-        name = name,
-        latitude = latitude,
-        longitude = longitude,
-        firestoreId = firestoreId
     )
 
     // Lists for bulk testing

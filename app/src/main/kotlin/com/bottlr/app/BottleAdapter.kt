@@ -5,15 +5,18 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.google.android.material.card.MaterialCardView
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 class BottleAdapter(
     private var bottles: MutableList<Bottle> = mutableListOf(),
-    private var allBottles: MutableList<Bottle> = mutableListOf(),
     private val onBottleClick: OnBottleCheckListener
 ) : RecyclerView.Adapter<BottleAdapter.BottleViewHolder>() {
 
@@ -34,33 +37,39 @@ class BottleAdapter(
     }
 
     class BottleViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val imageViewBottle: ImageView = itemView.findViewById(R.id.imageViewBottle)
-        val textViewBottleName: TextView = itemView.findViewById(R.id.textViewBottleName)
-        val textViewDistillery: TextView = itemView.findViewById(R.id.textViewDistillery)
-        val bottleButton: Button = itemView.findViewById(R.id.bottlesinglebutton)
+        val cardBottle: MaterialCardView = itemView.findViewById(R.id.cardBottle)
+        val imageBottle: ImageView = itemView.findViewById(R.id.imageBottle)
+        val textName: TextView = itemView.findViewById(R.id.textName)
+        val textDistillery: TextView = itemView.findViewById(R.id.textDistillery)
+        val textType: TextView = itemView.findViewById(R.id.textType)
+        val textDate: TextView = itemView.findViewById(R.id.textDate)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BottleViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.bottlelabel, parent, false)
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_bottle_compact, parent, false)
         return BottleViewHolder(view)
     }
 
     override fun onBindViewHolder(holder: BottleViewHolder, position: Int) {
         val bottle = bottles[position]
-        holder.textViewBottleName.text = bottle.name
-        holder.textViewDistillery.text = bottle.distillery
+        holder.textName.text = bottle.name
+        holder.textDistillery.text = bottle.distillery
+        holder.textType.text = bottle.type.ifEmpty { "Spirit" }
+        holder.textDate.text = formatDate(bottle.createdAt)
+
         bottle.photoUri?.let {
             if (it.toString().isNotEmpty() && it.toString() != "No photo") {
                 Glide.with(holder.itemView.context)
                     .load(it)
+                    .centerCrop()
                     .error(R.drawable.nodrinkimg)
-                    .into(holder.imageViewBottle)
+                    .into(holder.imageBottle)
             } else {
-                holder.imageViewBottle.setImageResource(R.drawable.nodrinkimg)
+                holder.imageBottle.setImageResource(R.drawable.nodrinkimg)
             }
-        } ?: holder.imageViewBottle.setImageResource(R.drawable.nodrinkimg)
+        } ?: holder.imageBottle.setImageResource(R.drawable.nodrinkimg)
 
-        holder.bottleButton.setOnClickListener {
+        holder.cardBottle.setOnClickListener {
             onBottleClick.onButtonClick(
                 bottle.name,
                 bottle.bottleID,
@@ -77,6 +86,13 @@ class BottleAdapter(
         }
     }
 
+    private fun formatDate(instant: Instant?): String {
+        if (instant == null) return ""
+        val formatter = DateTimeFormatter.ofPattern("MMM d", Locale.getDefault())
+            .withZone(ZoneId.systemDefault())
+        return formatter.format(instant)
+    }
+
     override fun getItemCount(): Int = bottles.size
 
     fun updateData(newBottles: List<Bottle>) {
@@ -85,10 +101,4 @@ class BottleAdapter(
         notifyDataSetChanged()
     }
 
-    fun setBottles(bottles: List<Bottle>) {
-        this.bottles = bottles.toMutableList()
-        this.allBottles.clear()
-        this.allBottles.addAll(bottles)
-        notifyDataSetChanged()
-    }
 }

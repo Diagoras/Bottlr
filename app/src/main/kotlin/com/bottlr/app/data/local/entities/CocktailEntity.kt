@@ -2,6 +2,7 @@ package com.bottlr.app.data.local.entities
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import java.time.Instant
 
 @Entity(tableName = "cocktails")
 data class CocktailEntity(
@@ -20,8 +21,8 @@ data class CocktailEntity(
     val keywords: String = "",
     val rating: Float? = null,
 
-    val createdAt: Long = System.currentTimeMillis(),
-    val updatedAt: Long = System.currentTimeMillis(),
+    val createdAt: Instant = Instant.now(),
+    val updatedAt: Instant = Instant.now(),
 
     val firestoreId: String? = null,
     val firebaseSynced: Boolean = false

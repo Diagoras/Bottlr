@@ -25,25 +25,17 @@ class CocktailRepository @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
     val allCocktails: Flow<List<CocktailEntity>> = cocktailDao.getAllCocktails()
+    val allCocktailsNewestFirst: Flow<List<CocktailEntity>> = cocktailDao.getAllCocktailsNewestFirst()
+    val cocktailCount: Flow<Int> = cocktailDao.getCocktailCount()
 
     fun getCocktailById(id: Long): Flow<CocktailEntity?> = cocktailDao.getCocktailById(id)
-
-    fun searchByField(field: String, query: String): Flow<List<CocktailEntity>> {
-        return when (field) {
-            "Name" -> cocktailDao.searchByName(query)
-            "Base" -> cocktailDao.searchByBase(query)
-            "Mixer" -> cocktailDao.searchByMixer(query)
-            "Keywords" -> cocktailDao.searchByKeywords(query)
-            else -> allCocktails
-        }
-    }
 
     suspend fun insert(cocktail: CocktailEntity): Long {
         return cocktailDao.insert(cocktail)
     }
 
     suspend fun update(cocktail: CocktailEntity) {
-        cocktailDao.update(cocktail.copy(updatedAt = System.currentTimeMillis()))
+        cocktailDao.update(cocktail.copy(updatedAt = java.time.Instant.now()))
     }
 
     suspend fun delete(cocktail: CocktailEntity) {
@@ -116,7 +108,7 @@ class CocktailRepository @Inject constructor(
                 notes = doc.getString("notes") ?: "",
                 keywords = doc.getString("keywords") ?: "",
                 rating = doc.getDouble("rating")?.toFloat(),
-                updatedAt = doc.getLong("updatedAt") ?: System.currentTimeMillis(),
+                updatedAt = doc.getLong("updatedAt")?.let { java.time.Instant.ofEpochMilli(it) } ?: java.time.Instant.now(),
                 firestoreId = doc.id,
                 firebaseSynced = true
             )

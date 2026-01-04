@@ -1,16 +1,20 @@
 package com.bottlr.app.ui.settings
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.Button
+import android.widget.RadioGroup
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import com.bottlr.app.MainActivity
 import com.bottlr.app.R
 import com.bottlr.app.data.repository.BottleRepository
 import com.bottlr.app.data.repository.CocktailRepository
@@ -50,6 +54,7 @@ class SettingsFragment : Fragment() {
     private lateinit var logoutButton: Button
     private lateinit var eraseButton: Button
     private lateinit var syncButton: Button
+    private lateinit var themeRadioGroup: RadioGroup
 
     private var navWindow: View? = null
     private var isNavOpen = false
@@ -81,6 +86,7 @@ class SettingsFragment : Fragment() {
         logoutButton = view.findViewById(R.id.logout_Button)
         eraseButton = view.findViewById(R.id.erase_Button)
         syncButton = view.findViewById(R.id.sync_Button)
+        themeRadioGroup = view.findViewById(R.id.theme_radio_group)
 
         // Nav window setup
         navWindow = view.findViewById(R.id.nav_window)
@@ -112,8 +118,41 @@ class SettingsFragment : Fragment() {
 
         setupUI()
         setupClickListeners()
+        setupThemeSelector()
 
         return view
+    }
+
+    private fun setupThemeSelector() {
+        val prefs = requireContext().getSharedPreferences(MainActivity.PREFS_NAME, Context.MODE_PRIVATE)
+        val currentTheme = prefs.getInt(MainActivity.KEY_THEME_MODE, MainActivity.THEME_SYSTEM)
+
+        // Set current selection
+        when (currentTheme) {
+            MainActivity.THEME_LIGHT -> themeRadioGroup.check(R.id.theme_light)
+            MainActivity.THEME_DARK -> themeRadioGroup.check(R.id.theme_dark)
+            else -> themeRadioGroup.check(R.id.theme_system)
+        }
+
+        // Handle changes
+        themeRadioGroup.setOnCheckedChangeListener { _, checkedId ->
+            val newTheme = when (checkedId) {
+                R.id.theme_light -> MainActivity.THEME_LIGHT
+                R.id.theme_dark -> MainActivity.THEME_DARK
+                else -> MainActivity.THEME_SYSTEM
+            }
+
+            // Save preference
+            prefs.edit().putInt(MainActivity.KEY_THEME_MODE, newTheme).apply()
+
+            // Apply immediately
+            val nightMode = when (newTheme) {
+                MainActivity.THEME_LIGHT -> AppCompatDelegate.MODE_NIGHT_NO
+                MainActivity.THEME_DARK -> AppCompatDelegate.MODE_NIGHT_YES
+                else -> AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+            }
+            AppCompatDelegate.setDefaultNightMode(nightMode)
+        }
     }
 
     private fun toggleNavWindow() {

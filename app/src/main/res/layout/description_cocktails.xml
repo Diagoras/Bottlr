@@ -102,7 +102,7 @@
         android:id="@+id/backgroundDesc"
         android:layout_width="383dp"
         android:layout_height="519dp"
-        android:backgroundTint="@color/Nearwhite"
+        android:backgroundTint="?attr/colorSurface"
         android:elevation="0dp"
         android:clickable="false"
         app:cornerRadius="40dp"
@@ -275,7 +275,7 @@
         android:layout_width="85dp"
         android:layout_height="85dp"
         android:layout_marginStart="1dp"
-        android:backgroundTint="@color/gold"
+        android:backgroundTint="?attr/colorPrimary"
         android:contentDescription="Edit"
         
         android:src="@drawable/baseline_edit_24"
@@ -291,7 +291,7 @@
         android:layout_width="85dp"
         android:layout_height="85dp"
         android:layout_gravity="end"
-        android:backgroundTint="@color/gold"
+        android:backgroundTint="?attr/colorPrimary"
         android:contentDescription="Share"
         
         android:src="@drawable/baseline_share_24"

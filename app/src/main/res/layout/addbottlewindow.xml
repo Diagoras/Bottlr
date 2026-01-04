@@ -107,7 +107,7 @@
                     android:id="@+id/toolbar"
                     android:layout_width="match_parent"
                     android:layout_height="?attr/actionBarSize"
-                    android:background="@color/gold"
+                    android:background="?attr/colorPrimary"
                     app:title="Add A Bottle"
                     app:titleTextColor="@android:color/white">
 
@@ -232,7 +232,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 
-                android:backgroundTint="@color/gold"
+                android:backgroundTint="?attr/colorPrimary"
                 android:textColor="@color/white"
                 android:text="Add Bottle Photo" />
 
@@ -241,7 +241,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 
-                android:backgroundTint="@color/gold"
+                android:backgroundTint="?attr/colorPrimary"
                 android:textColor="@color/white"
                 android:text="Save Bottle" />
 

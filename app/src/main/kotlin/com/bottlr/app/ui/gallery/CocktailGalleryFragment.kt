@@ -2,6 +2,8 @@ package com.bottlr.app.ui.gallery
 
 import android.net.Uri
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,13 +13,14 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bottlr.app.Cocktail
 import com.bottlr.app.CocktailAdapter
 import com.bottlr.app.R
 import com.bottlr.app.data.local.entities.CocktailEntity
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.textfield.TextInputEditText
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -42,10 +45,10 @@ class CocktailGalleryFragment : Fragment() {
 
         // Setup RecyclerView
         recyclerView = view.findViewById(R.id.liquorRecycler)
-        recyclerView.layoutManager = GridLayoutManager(requireContext(), 2)
+        recyclerView.layoutManager = LinearLayoutManager(requireContext())
 
         // Setup adapter with click listener
-        adapter = CocktailAdapter(mutableListOf(), mutableListOf()) { cocktail ->
+        adapter = CocktailAdapter(mutableListOf()) { cocktail ->
             navigateToDetails(cocktail.name)
         }
         recyclerView.adapter = adapter
@@ -59,8 +62,14 @@ class CocktailGalleryFragment : Fragment() {
             )
         }
 
-        // Hide search button (not implemented for cocktails yet)
-        view.findViewById<View>(R.id.search_liquor_button)?.visibility = View.GONE
+        // Setup search field
+        view.findViewById<TextInputEditText>(R.id.search_edit_text)?.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: Editable?) {
+                viewModel.setSearchQuery(s?.toString() ?: "")
+            }
+        })
 
         // Nav window setup
         navWindow = view.findViewById(R.id.nav_window)
@@ -125,7 +134,8 @@ class CocktailGalleryFragment : Fragment() {
             notes = entity.notes,
             keywords = entity.keywords,
             rating = entity.rating?.toString() ?: "",
-            cocktailID = entity.id.toString()
+            cocktailID = entity.id.toString(),
+            createdAt = entity.createdAt
         )
     }
 
@@ -144,7 +154,7 @@ class CocktailGalleryFragment : Fragment() {
 
     private fun closeNavWindow() {
         navWindow?.animate()
-            ?.translationX(-420f * resources.displayMetrics.density)
+            ?.translationX(-280f * resources.displayMetrics.density)
             ?.setDuration(300)
             ?.setInterpolator(AccelerateDecelerateInterpolator())
             ?.start()

@@ -5,422 +5,438 @@
     android:id="@+id/homescreen"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="?attr/colorSurface"
     android:fitsSystemWindows="true"
     tools:context=".MainActivity">
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab"
-        android:layout_width="130dp"
-        android:layout_height="128dp"
-        android:layout_gravity="bottom|end"
-        android:backgroundTint="@color/transparent"
-        android:clickable="true"
-        android:foreground="@drawable/whiskeyadd"
-                app:borderWidth="0dp"
-        app:elevation="0dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.973" />
-
-    <ImageView
-        android:id="@+id/titleBG"
-        android:layout_width="446dp"
-        android:layout_height="81dp"
-        android:scaleX="6"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/bg1" />
-
-    <TextView
-        android:id="@+id/Title_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Bottlr"
-        android:textColor="@color/black"
-        android:textSize="48sp"
-        android:fontFamily="@font/downhill"
-        android:letterSpacing=".05"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.001" />
-
-    <ImageView
-        android:id="@+id/line_image"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="3dp"
-        android:layout_marginTop="-20dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/Title_text"
-        app:layout_constraintVertical_bias="0.0"
-        app:srcCompat="@drawable/line" />
-
-    <Button
-        android:id="@+id/menu_icon"
-        android:layout_width="80dp"
-        android:layout_height="70dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="2dp"
-        android:layout_marginEnd="253dp"
-        android:background="@color/transparent"
-        android:clickable="true"
-        android:foreground="@drawable/menu_icon"
-                android:scaleX=".8"
-        android:textSize="20sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.0"
-        tools:ignore="SpeakableTextPresentCheck" />
-
-    <ImageView
-        android:id="@+id/cloud_sync_button_home"
-        android:layout_width="79dp"
-        android:layout_height="64dp"
-        android:layout_marginStart="185dp"
-        android:layout_marginTop="2dp"
-        android:layout_marginEnd="7dp"
-        android:clickable="true"
-                app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.0"
-        app:srcCompat="@drawable/cloud_empty" />
-
-    <TextView
-        android:id="@+id/signed_in_user"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="174dp"
-        android:layout_marginTop="14dp"
-        android:layout_marginEnd="179dp"
-        android:fontFamily="@font/exodemibold"
-        android:text="Find it - Drink it"
-        android:textSize="28sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.485"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.12" />
-
-    <Button
-        android:id="@+id/sign_in_button_home"
-        android:layout_width="262dp"
-        android:layout_height="163dp"
-        android:layout_marginTop="114dp"
-        android:layout_marginBottom="427dp"
-        android:clickable="true"
-                android:text="Sign In"
-        android:textSize="38sp"
-        android:visibility="visible"
-        android:backgroundTint="@color/gold"
-        android:textColor="@color/white"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.494"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/signed_in_user"
-        app:layout_constraintVertical_bias="0.495" />
-
-    <FrameLayout
-        android:id="@+id/home_last_bottle"
+    <!-- Top App Bar -->
+    <LinearLayout
+        android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="480dp"
-        android:layout_marginStart="1dp"
-        android:layout_marginTop="20dp"
-        android:layout_marginEnd="1dp"
-        android:layout_marginBottom="1dp"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_height="56dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="8dp"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintEnd_toEndOf="parent">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
+        <ImageButton
+            android:id="@+id/menu_icon"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/menu_icon"
+            android:scaleType="centerInside"
+            android:padding="12dp"
+            app:tint="?attr/colorPrimary"
+            android:contentDescription="Menu" />
+
+        <TextView
+            android:id="@+id/Title_text"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Bottlr"
+            android:textColor="?attr/colorOnSurface"
+            android:textSize="24sp"
+            android:fontFamily="@font/downhill"
+            android:gravity="center" />
+
+        <ImageButton
+            android:id="@+id/account_button"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/cloud_empty"
+            android:scaleType="centerInside"
+            android:padding="12dp"
+            app:tint="?attr/colorOnSurface"
+            android:contentDescription="Account" />
+
+    </LinearLayout>
+
+    <!-- Main Content -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        app:layout_constraintTop_toBottomOf="@id/toolbar"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
 
+            <!-- Section Title -->
             <TextView
-                android:id="@+id/lastbottle"
-                android:layout_width="0dp"
+                android:id="@+id/section_title"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="18dp"
-                android:layout_marginBottom="443dp"
-                android:text="Last Item Viewed"
-                android:textAlignment="center"
-                android:textSize="24sp"
-                android:textStyle="bold"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                android:text="Your Collection"
+                android:textColor="?attr/colorOnSurface"
+                android:textSize="28sp"
+                android:fontFamily="@font/exodemibold"
+                android:layout_marginBottom="16dp" />
 
+            <!-- Stats Cards Row -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:weightSum="2">
+
+                <!-- Liquor Cabinet Card -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/card_liquor"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="8dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    app:cardBackgroundColor="?attr/colorSurfaceVariant"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="2dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <ImageView
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:src="@drawable/ic_menu_gallery"
+                            app:tint="?attr/colorPrimary"
+                            android:contentDescription="Bottles" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Liquor Cabinet"
+                            android:textColor="?attr/colorOnSurface"
+                            android:textSize="14sp"
+                            android:layout_marginTop="12dp" />
+
+                        <TextView
+                            android:id="@+id/bottle_count"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="0 bottles"
+                            android:textColor="?attr/colorOnSurfaceVariant"
+                            android:textSize="24sp"
+                            android:fontFamily="@font/exodemibold"
+                            android:layout_marginTop="4dp" />
+
+                    </LinearLayout>
+
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Cocktail Maker Card -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/card_cocktails"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="8dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    app:cardBackgroundColor="?attr/colorSurfaceVariant"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="2dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <ImageView
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:src="@drawable/ic_menu_gallery"
+                            app:tint="?attr/colorPrimary"
+                            android:contentDescription="Cocktails" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Cocktail Maker"
+                            android:textColor="?attr/colorOnSurface"
+                            android:textSize="14sp"
+                            android:layout_marginTop="12dp" />
+
+                        <TextView
+                            android:id="@+id/cocktail_count"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="0 cocktails"
+                            android:textColor="?attr/colorOnSurfaceVariant"
+                            android:textSize="24sp"
+                            android:fontFamily="@font/exodemibold"
+                            android:layout_marginTop="4dp" />
+
+                    </LinearLayout>
+
+                </com.google.android.material.card.MaterialCardView>
+
+            </LinearLayout>
+
+            <!-- Quick Actions Title -->
             <TextView
-                android:id="@+id/tvBottleName"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="200dp"
-                android:textAlignment="center"
-                android:textSize="24sp"
-                android:textStyle="bold"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="1.0"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/lastbottle"
-                app:layout_constraintVertical_bias="0.093" />
+                android:text="Quick Actions"
+                android:textColor="?attr/colorOnSurface"
+                android:textSize="20sp"
+                android:fontFamily="@font/exodemibold"
+                android:layout_marginTop="32dp"
+                android:layout_marginBottom="12dp" />
 
-            <ImageView
-                android:id="@+id/detailImageView"
-                android:layout_width="350dp"
-                android:layout_height="350dp"
-                android:layout_marginTop="120dp"
-                android:layout_marginBottom="50dp"
-                android:scaleType="centerCrop"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.495"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.0"
-                app:layout_constraintWidth_percent="1" />
+            <!-- Quick Action Buttons -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:weightSum="2">
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
-    </FrameLayout>
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_add_bottle"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="8dp"
+                    android:text="Add Bottle"
+                    android:textColor="?attr/colorOnPrimary"
+                    app:backgroundTint="?attr/colorPrimary"
+                    app:icon="@drawable/whiskeyadd"
+                    app:iconGravity="textStart"
+                    app:iconTint="?attr/colorOnPrimary"
+                    app:cornerRadius="8dp" />
 
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_add_cocktail"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="8dp"
+                    android:text="Add Cocktail"
+                    android:textColor="?attr/colorOnPrimary"
+                    app:backgroundTint="?attr/colorPrimary"
+                    app:icon="@drawable/whiskeyadd"
+                    app:iconGravity="textStart"
+                    app:iconTint="?attr/colorOnPrimary"
+                    app:cornerRadius="8dp" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </ScrollView>
+
+    <!-- Navigation Drawer (kept for compatibility) -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/nav_window"
-        android:layout_width="420sp"
+        android:layout_width="280dp"
         android:layout_height="match_parent"
+        android:background="?attr/colorSurface"
         android:clickable="true"
-        android:elevation="5dp"
-        android:translationX="-420sp"
+        android:elevation="8dp"
+        android:translationX="-280dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
         <Button
             android:id="@+id/exit_nav_button"
-            android:layout_width="160dp"
-            android:layout_height="751dp"
-            android:layout_marginStart="250dp"
-            android:elevation="-10dp"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
             android:background="@color/transparent"
-                        android:text=""
+            android:text=""
+            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <ImageView
-            android:id="@+id/nav_image"
-            android:layout_width="wrap_content"
+        <!-- Nav Header -->
+        <LinearLayout
+            android:id="@+id/nav_header"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="280dp"
-            android:elevation="2dp"
-            android:scaleY="3"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:background="?attr/colorPrimary"
             app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/bg2" />
-
-        <ImageView
-            android:id="@+id/nav_menu_logo"
-            android:elevation="5dp"
-            android:layout_width="104dp"
-            android:layout_height="117dp"
-            android:layout_marginEnd="260dp"
-            android:layout_marginBottom="590dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@mipmap/ic_launcher" />
+            app:layout_constraintEnd_toEndOf="parent">
 
-        <TextView
-            android:id="@+id/bottlrnavtext"
-            android:layout_width="wrap_content"
+            <ImageView
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:src="@mipmap/ic_launcher"
+                android:contentDescription="Bottlr" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Bottlr"
+                android:textColor="?attr/colorOnPrimary"
+                android:textSize="24sp"
+                android:fontFamily="@font/exodemibold"
+                android:layout_marginTop="8dp" />
+
+        </LinearLayout>
+
+        <!-- Nav Menu Items -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:elevation="5dp"
-            android:layout_marginStart="28dp"
-            android:layout_marginEnd="91dp"
-            android:layout_marginBottom="410dp"
-            android:fontFamily="@font/exodemibold"
-            android:text="Menu"
-            android:textSize="40sp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
+            android:orientation="vertical"
+            android:paddingTop="8dp"
+            app:layout_constraintTop_toBottomOf="@id/nav_header"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintEnd_toEndOf="parent">
 
-        <ImageView
-            android:id="@+id/menuDivider"
-            android:elevation="5dp"
-            android:layout_width="200dp"
-            android:layout_height="117dp"
-            android:layout_marginEnd="150dp"
-            android:layout_marginBottom="330dp"
-            android:scaleX="2.5"
-            android:scaleY="3"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/line2" />
+            <LinearLayout
+                android:id="@+id/menu_home_button"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="16dp"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true">
 
-        <Button
-            android:id="@+id/menu_home_button"
-            android:layout_width="214dp"
-            android:layout_height="46dp"
-            android:elevation="5dp"
-            android:layout_marginStart="20dp"
-            android:layout_marginEnd="75dp"
-            android:layout_marginBottom="250dp"
-            android:background="@color/transparent"
-            android:clickable="true"
-                        android:paddingEnd="80sp"
-            android:text="Home"
-            android:textSize="16sp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/baseline_home_24"
+                    app:tint="?attr/colorOnSurface"
+                    android:contentDescription="Home" />
 
-        <ImageView
-            android:id="@+id/home_nav_icon"
-            android:layout_width="50dp"
-            android:elevation="5dp"
-            android:layout_height="36dp"
-            android:layout_marginStart="20dp"
-            android:layout_marginBottom="250dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/baseline_home_24" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Home"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textSize="16sp"
+                    android:layout_marginStart="16dp" />
 
-        <Button
-            android:id="@+id/menu_liquorcab_button"
-            android:layout_width="214dp"
-            android:layout_height="46dp"
-            android:elevation="5dp"
-            android:layout_marginStart="20dp"
-            android:layout_marginEnd="75dp"
-            android:layout_marginBottom="150dp"
-            android:background="@color/transparent"
-            android:clickable="true"
-                        android:paddingStart="48sp"
-            android:text="Liquor Cabinet"
-            android:textSize="16sp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            </LinearLayout>
 
-        <ImageView
-            android:id="@+id/liquorcab_nav_icon"
-            android:layout_width="50dp"
-            android:layout_height="36dp"
-            android:layout_marginStart="18dp"
-            android:elevation="5dp"
-            android:layout_marginBottom="150dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/ic_menu_gallery" />
+            <LinearLayout
+                android:id="@+id/menu_liquorcab_button"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="16dp"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true">
 
-        <Button
-            android:id="@+id/menu_cocktail_button"
-            android:layout_width="224dp"
-            android:layout_height="46dp"
-            android:layout_marginStart="20dp"
-            android:layout_marginTop="100dp"
-            android:layout_marginEnd="75dp"
-            android:elevation="5dp"
-            android:layout_marginBottom="150dp"
-            android:background="@color/transparent"
-            android:clickable="true"
-                        android:paddingStart="43sp"
-            android:text="Cocktail Maker"
-            android:textSize="16sp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_menu_gallery"
+                    app:tint="?attr/colorOnSurface"
+                    android:contentDescription="Bottles" />
 
-        <ImageView
-            android:id="@+id/cocktail_nav_icon"
-            android:layout_width="50dp"
-            android:layout_height="36dp"
-            android:layout_marginStart="18dp"
-            android:layout_marginTop="100dp"
-            android:elevation="5dp"
-            android:layout_marginBottom="150dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/ic_menu_gallery" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Liquor Cabinet"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textSize="16sp"
+                    android:layout_marginStart="16dp" />
 
-        <Button
-            android:id="@+id/menu_settings_button"
-            android:layout_width="214dp"
-            android:layout_height="46dp"
-            android:layout_marginStart="20dp"
-            android:layout_marginTop="200dp"
-            android:layout_marginEnd="75dp"
-            android:layout_marginBottom="-50dp"
-            android:background="@color/transparent"
-            android:elevation="5dp"
-            android:clickable="true"
-                        android:paddingEnd="40sp"
-            android:text="Settings"
-            android:textSize="16sp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            </LinearLayout>
 
-        <ImageView
-            android:id="@+id/settings_nav_icon"
-            android:layout_width="50dp"
-            android:layout_height="36dp"
-            android:layout_marginStart="20dp"
-            android:layout_marginTop="200dp"
-            android:layout_marginBottom="-50dp"
-            android:elevation="5dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/settings" />
+            <LinearLayout
+                android:id="@+id/menu_cocktail_button"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="16dp"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_menu_gallery"
+                    app:tint="?attr/colorOnSurface"
+                    android:contentDescription="Cocktails" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Cocktail Maker"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textSize="16sp"
+                    android:layout_marginStart="16dp" />
+
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="?attr/colorOutline"
+                android:layout_marginVertical="8dp" />
+
+            <LinearLayout
+                android:id="@+id/menu_settings_button"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="16dp"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/settings"
+                    app:tint="?attr/colorOnSurface"
+                    android:contentDescription="Settings" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Settings"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textSize="16sp"
+                    android:layout_marginStart="16dp" />
+
+            </LinearLayout>
+
+        </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- Scrim overlay for nav drawer -->
+    <View
+        android:id="@+id/nav_scrim"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#80000000"
+        android:visibility="gone"
+        android:elevation="7dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

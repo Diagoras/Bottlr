@@ -107,7 +107,7 @@
                     android:id="@+id/toolbar"
                     android:layout_width="match_parent"
                     android:layout_height="?attr/actionBarSize"
-                    android:background="@color/gold"
+                    android:background="?attr/colorPrimary"
                     app:title="Add A Cocktail"
                     app:titleTextColor="@android:color/white">
 
@@ -236,7 +236,7 @@
                 android:id="@+id/addPhotoButtonCocktail"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:backgroundTint="@color/gold"
+                android:backgroundTint="?attr/colorPrimary"
                 
                 android:textColor="@color/white"
                 android:text="Add Cocktail Photo" />
@@ -245,7 +245,7 @@
                 android:id="@+id/saveButtonCocktail"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:backgroundTint="@color/gold"
+                android:backgroundTint="?attr/colorPrimary"
                 
                 android:textColor="@color/white"
                 android:text="Save Cocktail" />

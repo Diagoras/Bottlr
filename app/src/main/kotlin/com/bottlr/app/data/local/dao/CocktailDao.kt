@@ -9,6 +9,12 @@ interface CocktailDao {
     @Query("SELECT * FROM cocktails ORDER BY name ASC")
     fun getAllCocktails(): Flow<List<CocktailEntity>>
 
+    @Query("SELECT * FROM cocktails ORDER BY createdAt DESC")
+    fun getAllCocktailsNewestFirst(): Flow<List<CocktailEntity>>
+
+    @Query("SELECT COUNT(*) FROM cocktails")
+    fun getCocktailCount(): Flow<Int>
+
     @Query("SELECT * FROM cocktails WHERE id = :id")
     fun getCocktailById(id: Long): Flow<CocktailEntity?>
 
