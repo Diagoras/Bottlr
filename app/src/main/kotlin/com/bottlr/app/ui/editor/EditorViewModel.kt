@@ -5,10 +5,12 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bottlr.app.data.local.entities.BottleEntity
+import com.bottlr.app.data.model.EnrichedBottle
 import com.bottlr.app.data.repository.BottleRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import kotlinx.serialization.json.Json
 import javax.inject.Inject
 
 @HiltViewModel
@@ -20,6 +22,9 @@ class EditorViewModel @Inject constructor(
     // Get bottleId from navigation args (-1 means new bottle)
     private val bottleId: Long = savedStateHandle.get<Long>("bottleId") ?: -1L
 
+    // Get pre-fill data from Smart Capture (if any)
+    private val prefillJson: String? = savedStateHandle.get<String>("prefillJson")
+
     // Photo URI state (survives configuration changes!)
     private val _photoUri = MutableStateFlow<Uri?>(null)
     val photoUri: StateFlow<Uri?> = _photoUri.asStateFlow()
@@ -27,6 +32,10 @@ class EditorViewModel @Inject constructor(
     // Current bottle being edited (null for new bottle)
     private val _bottle = MutableStateFlow<BottleEntity?>(null)
     val bottle: StateFlow<BottleEntity?> = _bottle.asStateFlow()
+
+    // Pre-filled data from Smart Capture
+    private val _prefillData = MutableStateFlow<EnrichedBottle?>(null)
+    val prefillData: StateFlow<EnrichedBottle?> = _prefillData.asStateFlow()
 
     // Save status for UI feedback
     private val _saveStatus = MutableStateFlow<SaveStatus>(SaveStatus.Idle)
@@ -37,6 +46,9 @@ class EditorViewModel @Inject constructor(
     val deleteStatus: StateFlow<DeleteStatus> = _deleteStatus.asStateFlow()
 
     val isEditMode: Boolean = bottleId != -1L
+    val hasPrefillData: Boolean = prefillJson != null
+
+    private val json = Json { ignoreUnknownKeys = true }
 
     init {
         if (isEditMode) {
@@ -48,6 +60,14 @@ class EditorViewModel @Inject constructor(
                         _photoUri.value = Uri.parse(uri)
                     }
                 }
+            }
+        } else if (prefillJson != null) {
+            // Parse pre-fill data from Smart Capture
+            try {
+                val enrichedBottle = json.decodeFromString<EnrichedBottle>(prefillJson)
+                _prefillData.value = enrichedBottle
+            } catch (e: Exception) {
+                // Ignore parse errors, just don't pre-fill
             }
         }
     }

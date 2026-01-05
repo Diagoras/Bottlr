@@ -16,7 +16,13 @@ import com.bottlr.app.ui.editor.CocktailEditorScreen
 import com.bottlr.app.ui.gallery.BottleGalleryScreen
 import com.bottlr.app.ui.gallery.CocktailGalleryScreen
 import com.bottlr.app.ui.home.HomeScreen
+import com.bottlr.app.ui.settings.ApiKeySettingsScreen
 import com.bottlr.app.ui.settings.SettingsScreen
+import com.bottlr.app.ui.smartcapture.CaptureReviewScreen
+import com.bottlr.app.ui.smartcapture.SmartCaptureScreen
+import android.net.Uri
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 
 @Composable
 fun BottlrNavHost(
@@ -43,7 +49,8 @@ fun BottlrNavHost(
                 onNavigateToCocktailGallery = { navController.navigate(CocktailGallery) },
                 onNavigateToSettings = { navController.navigate(Settings) },
                 onAddBottle = { navController.navigate(BottleEditor()) },
-                onAddCocktail = { navController.navigate(CocktailEditor()) }
+                onAddCocktail = { navController.navigate(CocktailEditor()) },
+                onSmartAdd = { navController.navigate(SmartCapture) }
             )
         }
 
@@ -113,7 +120,43 @@ fun BottlrNavHost(
 
         composable<Settings> {
             SettingsScreen(
+                onNavigateBack = { navController.popBackStack() },
+                onNavigateToApiKeys = { navController.navigate(ApiKeySettings) }
+            )
+        }
+
+        composable<ApiKeySettings> {
+            ApiKeySettingsScreen(
                 onNavigateBack = { navController.popBackStack() }
+            )
+        }
+
+        composable<SmartCapture> {
+            SmartCaptureScreen(
+                onNavigateBack = { navController.popBackStack() },
+                onNavigateToReview = { photoUri ->
+                    navController.navigate(CaptureReview(photoUri.toString()))
+                },
+                onNavigateToApiKeys = { navController.navigate(ApiKeySettings) }
+            )
+        }
+
+        composable<CaptureReview> {
+            val route = it.toRoute<CaptureReview>()
+            CaptureReviewScreen(
+                photoUri = Uri.parse(route.photoUri),
+                onNavigateBack = { navController.popBackStack() },
+                onConfirm = { bottle, photoUri ->
+                    // Navigate to editor with pre-filled data
+                    val prefillJson = Json.encodeToString(bottle)
+                    navController.navigate(BottleEditor(prefillJson = prefillJson)) {
+                        // Pop up to gallery when going to editor
+                        popUpTo(SmartCapture) { inclusive = true }
+                    }
+                },
+                onRetake = {
+                    navController.popBackStack()
+                }
             )
         }
     }

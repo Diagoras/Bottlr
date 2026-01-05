@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.LocalBar
 import androidx.compose.material.icons.filled.Liquor
 import androidx.compose.material3.Button
@@ -44,6 +45,7 @@ fun HomeScreen(
     onNavigateToSettings: () -> Unit,
     onAddBottle: () -> Unit,
     onAddCocktail: () -> Unit,
+    onSmartAdd: () -> Unit = {},
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     val bottleCount by viewModel.bottleCount.collectAsStateWithLifecycle()
@@ -130,6 +132,20 @@ fun HomeScreen(
                     Spacer(Modifier.width(8.dp))
                     Text("Add Cocktail")
                 }
+            }
+
+            // Smart Add Button
+            Button(
+                onClick = onSmartAdd,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Icon(
+                    imageVector = Icons.Default.CameraAlt,
+                    contentDescription = null,
+                    modifier = Modifier.size(18.dp)
+                )
+                Spacer(Modifier.width(8.dp))
+                Text("Smart Add (Camera)")
             }
         }
     }
